@@ -1,0 +1,30 @@
+.container {
+  display: flex;
+  align-items: stretch;
+  height: 100vh;
+
+  .nav-wrapper {
+    margin: 0;
+
+    > ul {
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+
+      > :last-child {
+        margin-top: auto;
+      }
+    }
+  }
+
+  .body-wrapper {
+    flex: 1;
+    padding: 12px;
+    max-width: calc(100vw - 80px);
+    overflow: auto;
+  }
+
+  button {
+    margin-bottom: 12px;
+  }
+}

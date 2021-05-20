@@ -1,0 +1,35 @@
+<div class="container">
+  <div class="card">
+    <div style="display: flex; flex-direction: column; align-items: center">
+      <h2>In-House</h2>
+      <h4>Attendance</h4>
+    </div>
+    <input nz-input placeholder="Username" [(ngModel)]="username" />
+    <nz-input-group [nzSuffix]="suffixTemplate">
+      <input
+        [type]="isPasswordVisible ? 'text' : 'password'"
+        nz-input
+        placeholder="Password"
+        [(ngModel)]="password"
+        (keydown)="onPasswordKeydown($event)"
+      />
+    </nz-input-group>
+    <ng-template #suffixTemplate>
+      <i
+        nz-icon
+        [nzType]="isPasswordVisible ? 'eye' : 'eye-invisible'"
+        (click)="isPasswordVisible = !isPasswordVisible"
+      ></i>
+    </ng-template>
+    <a routerLink="/login/forgot-password">Forgot Password</a>
+    <button
+      nz-button
+      nzType="primary"
+      (click)="login()"
+      [nzLoading]="isLoading"
+      nzBlock
+    >
+      Login
+    </button>
+  </div>
+</div>

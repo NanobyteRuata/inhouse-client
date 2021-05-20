@@ -1,0 +1,10 @@
+<span style="display: flex; flex-direction: column">
+  <span class="label">{{ label }}</span>
+  <input
+    nz-input
+    [disabled]="disabled"
+    [placeholder]="placeholder"
+    [(ngModel)]="value"
+    (ngModelChange)="valueChange.emit(value)"
+  />
+</span>

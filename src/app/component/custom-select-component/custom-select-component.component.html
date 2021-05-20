@@ -1,0 +1,16 @@
+<span style="display: flex; flex-direction: column">
+  <span class="label">{{ label }}</span>
+  <nz-select
+    [nzDisabled]="disabled"
+    [(ngModel)]="value"
+    (ngModelChange)="valueChange.emit(value)"
+    [nzPlaceHolder]="placeholder"
+    [nzLoading]="isLoading"
+  >
+    <nz-option
+      *ngFor="let option of options"
+      [nzValue]="value != null && value.id == null ? option.id : option"
+      [nzLabel]="option[displayProperty]"
+    ></nz-option>
+  </nz-select>
+</span>

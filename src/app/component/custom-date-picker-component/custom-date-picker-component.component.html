@@ -1,0 +1,18 @@
+<span style="display: flex; flex-direction: column">
+  <span class="label">{{ label }}</span>
+  <nz-date-picker
+    *ngIf="type != 'time'"
+    [nzDisabled]="disabled"
+    [nzPlaceHolder]="placeholder"
+    [(ngModel)]="date"
+    (ngModelChange)="dateChange()"
+  ></nz-date-picker>
+  <nz-time-picker
+    *ngIf="type == 'time'"
+    nzFormat="hh:mm a"
+    [(ngModel)]="date"
+    [nzDisabled]="disabled"
+    [nzPlaceHolder]="placeholder"
+    (ngModelChange)="dateChange()"
+  ></nz-time-picker>
+</span>

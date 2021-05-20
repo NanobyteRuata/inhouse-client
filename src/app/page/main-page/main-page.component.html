@@ -1,0 +1,81 @@
+<div class="container">
+  <div class="nav-wrapper">
+    <ul nz-menu nzMode="inline" nzTheme="dark" [nzInlineCollapsed]="true">
+      <li
+        nz-menu-item
+        nz-tooltip
+        nzTooltipPlacement="right"
+        nzTooltipTitle="Dashboard"
+        nzSelected
+        routerLink="/dashboard"
+        [nzMatchRouter]="true"
+      >
+        <i nz-icon nzType="home"></i>
+        <span>Dashboard</span>
+      </li>
+      <li
+        nz-menu-item
+        nz-tooltip
+        nzTooltipPlacement="right"
+        nzTooltipTitle="Attendance"
+        routerLink="/attendance"
+        [nzMatchRouter]="true"
+      >
+        <i nz-icon nzType="check"></i>
+        <span>Attendance</span>
+      </li>
+      <li
+        nz-submenu
+        nzIcon="container"
+        nzTooltipPlacement="right"
+        nzTooltipTitle="Attendance"
+      >
+        <ul>
+          <li
+            nz-menu-item
+            [nzMatchRouter]="true"
+            routerLink="/checkin-checkout-request"
+          >
+            Checkin-Checkout Request
+          </li>
+          <li nz-menu-item [nzMatchRouter]="true" routerLink="/overtime">
+            Overtime
+          </li>
+          <li nz-menu-item [nzMatchRouter]="true" routerLink="/leave">Leave</li>
+        </ul>
+      </li>
+      <li
+        nz-menu-item
+        nz-tooltip
+        nzTooltipPlacement="right"
+        nzTooltipTitle="Employees"
+        routerLink="/employee"
+        [nzMatchRouter]="true"
+      >
+        <i nz-icon nzType="team"></i>
+        <span>Employees</span>
+      </li>
+      <li
+        style="
+          width: 100%;
+          margin-bottom: 24px;
+          text-align: center;
+          cursor: pointer;
+        "
+        nzSelected="false"
+        nz-tooltip
+        nzTooltipPlacement="right"
+        nzTooltipTitle="Logout"
+        nz-popconfirm
+        nzPopconfirmTitle="Are you sure you want to log out?"
+        nzPopconfirmPlacement="right"
+        (nzOnConfirm)="logout()"
+      >
+        <i nz-icon nzType="logout"></i>
+      </li>
+    </ul>
+  </div>
+  <div class="body-wrapper">
+    <router-outlet></router-outlet>
+  </div>
+</div>

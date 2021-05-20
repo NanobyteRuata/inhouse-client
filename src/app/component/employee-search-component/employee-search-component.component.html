@@ -1,0 +1,41 @@
+<div class="employee-search-container">
+  <div class="employee-filter-container">
+    <input
+      nz-input
+      placeholder="Name or code"
+      [(ngModel)]="keyword"
+      [disabled]="isDepartmentsLoading || isLoading"
+    />
+    <nz-select
+      nzAllowClear
+      [(ngModel)]="selectedDepartmentId"
+      [nzLoading]="isDepartmentsLoading"
+      nzPlaceHolder="Department"
+    >
+      <nz-option
+        *ngFor="let department of departments"
+        [nzValue]="department.id"
+        [nzLabel]="department.name"
+      ></nz-option>
+    </nz-select>
+    <button
+      nz-button
+      [disabled]="keyword.length == 0 && selectedDepartmentId == -1"
+      [nzLoading]="isDepartmentsLoading || isLoading"
+      nzType="primary"
+      nzShape="circle"
+      (click)="search()"
+    >
+      <i nz-icon nzType="search"></i>
+    </button>
+  </div>
+  <div class="employee-result-container">
+    <app-employee-card-component
+      *ngFor="let employee of employees"
+      [showDetails]="showEmployeeDetails"
+      (click)="onEmployeeCardClicked(employee)"
+      [employee]="employee"
+      [isSelected]="selectedEmployee && selectedEmployee.id == employee.id"
+    ></app-employee-card-component>
+  </div>
+</div>

@@ -1,0 +1,383 @@
+<div class="body-container">
+  <div class="flex-row">
+    <nz-breadcrumb>
+      <nz-breadcrumb-item> Employee </nz-breadcrumb-item>
+    </nz-breadcrumb>
+    <div style="flex: 1; display: flex; flex-direction: row-reverse">
+      <button
+        *ngIf="currentUserEmployee.role != 2"
+        nz-button
+        nzType="primary"
+        (click)="onAddNewEmployeeClicked()"
+      >
+        <i nz-icon nzType="user-add"></i> Create New Employee
+      </button>
+    </div>
+  </div>
+  <div class="employee-body">
+    <app-employee-search-component
+      #employeeSearchComponent1
+      (onSelectEmployee)="onSelectEmployee($event)"
+    ></app-employee-search-component>
+    <div class="employee-detail-container flex-row">
+      <div
+        *ngIf="selectedEmployee && !isLoading"
+        class="flex-column image-container"
+      >
+        <img
+          [src]="
+            selectedEmployee.image_url
+              ? selectedEmployee.image_url
+              : 'https://media.istockphoto.com/vectors/profile-placeholder-image-gray-silhouette-no-photo-vector-id1016744034?b=1&k=6&m=1016744034&s=612x612&w=0&h=dbicqM9p31ex5Lm-FpsdOjHkPZM_6Lmkb02qJO9SY5E='
+          "
+        />
+      </div>
+      <div
+        *ngIf="selectedEmployee && !isLoading"
+        class="flex-column employee-detail-body"
+      >
+        <div class="flex-row employee-detail-row">
+          <app-custom-input-component
+            [disabled]="currentUserEmployee.role == 2"
+            label="Name"
+            [(value)]="selectedEmployee.name"
+          ></app-custom-input-component>
+          <app-custom-input-component
+            [disabled]="currentUserEmployee.role == 2"
+            label="Employee Code"
+            [(value)]="selectedEmployee.code"
+          ></app-custom-input-component>
+          <app-custom-input-component
+            [disabled]="
+              currentUserEmployee.role == 2 &&
+              selectedEmployee.id != currentUserEmployee.id
+            "
+            label="Username"
+            [(value)]="selectedEmployee.username"
+          ></app-custom-input-component>
+        </div>
+
+        <div class="flex-row employee-detail-row">
+          <app-custom-input-component
+            [disabled]="currentUserEmployee.role == 2"
+            label="Email"
+            [(value)]="selectedEmployee.email"
+          ></app-custom-input-component>
+          <app-custom-input-component
+            [disabled]="
+              currentUserEmployee.role == 2 &&
+              selectedEmployee.id != currentUserEmployee.id
+            "
+            label="Phone"
+            [(value)]="selectedEmployee.phone"
+          ></app-custom-input-component>
+          <app-custom-input-component
+            *ngIf="
+              currentUserEmployee.role != 2 ||
+              selectedEmployee.id == currentUserEmployee.id
+            "
+            [disabled]="
+              currentUserEmployee.role == 2 &&
+              selectedEmployee.id != currentUserEmployee.id
+            "
+            label="Address"
+            [(value)]="selectedEmployee.address"
+          ></app-custom-input-component>
+        </div>
+
+        <div class="flex-row employee-detail-row">
+          <app-custom-input-component
+            [disabled]="currentUserEmployee.role == 2"
+            label="Position"
+            [(value)]="selectedEmployee.position"
+          ></app-custom-input-component>
+          <div class="flex-row" style="align-items: flex-end">
+            <app-custom-select-component
+              style="flex: 1"
+              [disabled]="currentUserEmployee.role == 2"
+              [isLoading]="isDepartmentLoading"
+              label="Department"
+              displayProperty="name"
+              [(value)]="selectedEmployee.department"
+              [options]="departments"
+            ></app-custom-select-component>
+            <button
+              *ngIf="currentUserEmployee.role == 0"
+              nz-button
+              nzType="default"
+              [disabled]="selectedEmployee.department == null"
+              nzDanger
+              nz-popconfirm
+              nzPopconfirmTitle="Are you sure you want to delete {{
+                selectedEmployee.department
+                  ? selectedEmployee.department.name
+                  : 'a'
+              }} department?"
+              nzPopconfirmPlacement="right"
+              (nzOnConfirm)="isDeleteDepartmentModalVisible = true"
+            >
+              <i nz-icon nzType="delete"></i>
+            </button>
+            <nz-modal
+              [(nzVisible)]="isDeleteDepartmentModalVisible"
+              nzTitle="Replace Department"
+              (nzOnCancel)="isDeleteDepartmentModalVisible = false"
+              (nzOnOk)="onDeleteDepartment()"
+              [nzOkLoading]="isDeleteDepartmentLoading"
+            >
+              <ng-container *nzModalContent>
+                <app-custom-select-component
+                  label="Department"
+                  [(value)]="replaceDepartment"
+                  displayProperty="name"
+                  [options]="replaceableDepartments"
+                ></app-custom-select-component>
+              </ng-container>
+            </nz-modal>
+            <button
+              *ngIf="currentUserEmployee.role == 0"
+              nz-button
+              nzType="default"
+              (click)="isCreateDepartmentModalVisible = true"
+              style="color: #1890ff; border-color: #1890ff"
+            >
+              <i nz-icon nzType="plus-circle"></i>
+            </button>
+            <nz-modal
+              [(nzVisible)]="isCreateDepartmentModalVisible"
+              nzTitle="Create Department"
+              (nzOnCancel)="isCreateDepartmentModalVisible = false"
+              (nzOnOk)="onCreateDepartment()"
+              [nzOkLoading]="isCreateDepartmentLoading"
+            >
+              <ng-container *nzModalContent>
+                <app-custom-input-component
+                  #txtDepartmentName
+                  label="Department Name"
+                  [(value)]="newDepartmentName"
+                ></app-custom-input-component>
+              </ng-container>
+            </nz-modal>
+          </div>
+          <app-custom-select-component
+            [disabled]="currentUserEmployee.role != 0"
+            label="Roles"
+            displayProperty="name"
+            [(value)]="selectedEmployee.role"
+            [options]="roles"
+          ></app-custom-select-component>
+        </div>
+
+        <div class="flex-row employee-detail-row">
+          <app-custom-date-picker-component
+            [disabled]="currentUserEmployee.role == 2"
+            label="Joined Date"
+            [(value)]="selectedEmployee.joined_date"
+          ></app-custom-date-picker-component>
+          <div style="flex: 1"></div>
+
+          <div
+            style="
+              flex: 1;
+              display: flex;
+              flex-direction: row-reverse;
+              align-items: flex-end;
+            "
+          >
+            <button
+              *ngIf="
+                !(
+                  currentUserEmployee.role == 2 &&
+                  selectedEmployee.id != currentUserEmployee.id
+                )
+              "
+              [nzLoading]="isCreateEmployeeLoading"
+              nz-button
+              nzType="primary"
+              (click)="onSaveEmployee()"
+            >
+              <i nz-icon nzType="save"></i> Save
+            </button>
+
+            <button
+              *ngIf="
+                currentUserEmployee.role != 2 &&
+                currentUserEmployee.id != selectedEmployee.id
+              "
+              style="margin-right: 4px"
+              nz-button
+              nzDanger
+              [nzLoading]="isDeleteEmployeeLoading"
+              [nzType]="'primary'"
+              nz-popconfirm
+              nzPopconfirmTitle="Are you sure you want to delete {{
+                selectedEmployee.name
+              }}?"
+              nzPopconfirmPlacement="right"
+              (nzOnConfirm)="onDeleteEmployee()"
+            >
+              <i nz-icon nzType="delete"></i>
+            </button>
+            <button
+              *ngIf="currentUserEmployee.id == selectedEmployee.id"
+              style="margin-right: 4px"
+              nz-button
+              [nzType]="'default'"
+              (click)="isChangePasswordModalVisible = true"
+            >
+              <span>Change Password</span>
+            </button>
+            <nz-modal
+              [(nzVisible)]="isChangePasswordModalVisible"
+              nzTitle="Change Password"
+              (nzOnCancel)="isChangePasswordModalVisible = false"
+              (nzOnOk)="onChangePassword()"
+              [nzOkLoading]="isChangePasswordLoading"
+            >
+              <ng-container *nzModalContent>
+                <nz-input-group
+                  [nzSuffix]="oldPasswordSuffixTemplate"
+                  style="margin-bottom: 8px"
+                >
+                  <input
+                    [type]="isOldPasswordVisible ? 'text' : 'password'"
+                    nz-input
+                    placeholder="Old Password"
+                    [(ngModel)]="oldPassword"
+                  />
+                </nz-input-group>
+                <ng-template #oldPasswordSuffixTemplate>
+                  <i
+                    nz-icon
+                    [nzType]="isOldPasswordVisible ? 'eye-invisible' : 'eye'"
+                    (click)="isOldPasswordVisible = !isOldPasswordVisible"
+                  ></i>
+                </ng-template>
+                <nz-input-group
+                  [nzSuffix]="newPasswordSuffixTemplate"
+                  style="margin-bottom: 8px"
+                >
+                  <input
+                    [type]="isNewPasswordVisible ? 'text' : 'password'"
+                    nz-input
+                    placeholder="New Password"
+                    [(ngModel)]="newPassword"
+                  />
+                </nz-input-group>
+                <ng-template #newPasswordSuffixTemplate>
+                  <i
+                    nz-icon
+                    [nzType]="isNewPasswordVisible ? 'eye-invisible' : 'eye'"
+                    (click)="isNewPasswordVisible = !isNewPasswordVisible"
+                  ></i>
+                </ng-template>
+                <nz-input-group [nzSuffix]="confirmPasswordSuffixTemplate">
+                  <input
+                    [type]="isConfirmPasswordVisible ? 'text' : 'password'"
+                    nz-input
+                    placeholder="Confirm Password"
+                    [(ngModel)]="confirmPassword"
+                  />
+                </nz-input-group>
+                <ng-template #confirmPasswordSuffixTemplate>
+                  <i
+                    nz-icon
+                    [nzType]="
+                      isConfirmPasswordVisible ? 'eye-invisible' : 'eye'
+                    "
+                    (click)="
+                      isConfirmPasswordVisible = !isConfirmPasswordVisible
+                    "
+                  ></i>
+                </ng-template>
+              </ng-container>
+            </nz-modal>
+          </div>
+        </div>
+
+        <div
+          class="flex-row employee-detail-row"
+          style="
+            margin-top: 8px;
+            flex: 1;
+            overflow: auto;
+            border: solid 1px lightgrey;
+          "
+        >
+          <div class="flex-row">
+            <div
+              class="supervisors-list-container"
+              style="
+                display: flex;
+                flex-direction: column;
+                flex: 1;
+                padding: 8px;
+              "
+            >
+              <h3>Supervisors</h3>
+              <div
+                class="supervisors-list-body"
+                style="flex: 1; overflow: auto"
+              >
+                <div
+                  *ngIf="isSupervisorsLoading"
+                  style="width: 100%; text-align: center"
+                >
+                  <i nz-icon nzType="loading"></i>
+                </div>
+                <app-employee-card-component
+                  *ngFor="let supervisor of supervisors"
+                  (click)="onSelectExistingSupervisor(supervisor)"
+                  [employee]="supervisor"
+                  [showDetails]="true"
+                  [isSelected]="
+                    selectedExistingSupervisor &&
+                    selectedExistingSupervisor.id == supervisor.id
+                  "
+                ></app-employee-card-component>
+              </div>
+            </div>
+            <div
+              *ngIf="currentUserEmployee && currentUserEmployee.role != 2"
+              style="
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+                align-items: center;
+                margin-right: 4px;
+              "
+            >
+              <button
+                nz-button
+                nzType="primary"
+                nzSize="large"
+                [disabled]="selectedExistingSupervisor == null"
+                nzDanger
+                [nzLoading]="isSupervisorRemoveLoading"
+                (click)="onRemoveSupervisor()"
+              >
+                <i nz-icon nzType="arrow-right"></i>
+              </button>
+              <button
+                nz-button
+                nzType="primary"
+                nzSize="large"
+                [disabled]="selectedSupervisor == null"
+                [nzLoading]="isSupervisorAddLoading"
+                (click)="onAddSupervisor()"
+              >
+                <i nz-icon nzType="arrow-left"></i>
+              </button>
+            </div>
+            <app-employee-search-component
+              #employeeSearchComponent2
+              *ngIf="currentUserEmployee && currentUserEmployee.role != 2"
+              (onSelectEmployee)="onSelectSupervisor($event)"
+              [showEmployeeDetails]="true"
+            ></app-employee-search-component>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

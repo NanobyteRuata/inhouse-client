@@ -1,0 +1,327 @@
+<div class="body-container" (window:resize)="calculateTableHeight()">
+  <div class="flex-row">
+    <nz-breadcrumb>
+      <nz-breadcrumb-item> Attendance </nz-breadcrumb-item>
+    </nz-breadcrumb>
+  </div>
+  <div class="attendance-body">
+    <app-employee-search-component
+      #employeeSearchComponent1
+      (onSelectEmployee)="onSelectEmployee($event)"
+      [showEmployeeDetails]="true"
+    ></app-employee-search-component>
+    <div
+      id="table-parent"
+      class="flex-column"
+      style="align-items: stretch; width: 100%"
+    >
+      <app-month-year-select-component
+        #monthYearSelectComponent
+        (onChange)="onMonthChange($event)"
+      ></app-month-year-select-component>
+      <nz-table
+        size="small"
+        [nzBordered]="true"
+        [nzLoading]="isAttendanceTableLoading"
+        style="flex: 1"
+        #attendanceTable
+        [nzData]="attendanceResultList"
+        nzFrontPagination="false"
+        [nzScroll]="{ x: '100%', y: tableHeight }"
+      >
+        <thead>
+          <tr>
+            <th
+              nzSortOrder="ascend"
+              [nzSortFn]="dateSortFunction"
+              [nzFilters]="dateFilterList"
+              [nzFilterFn]="dateFilterFunction"
+            >
+              Date
+            </th>
+            <th>Checkin</th>
+            <th>Checkout</th>
+            <th>Working Hour</th>
+            <th
+              [nzFilters]="remarksFilterList"
+              [nzFilterFn]="remarksFilterFunction"
+            >
+              Remarks
+            </th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr
+            *ngFor="let data of attendanceTable.data"
+            [ngClass]="
+              checkTodayFromTimestamp(data.date)
+                ? 'green-table-row'
+                : checkWeekendFromTimestamp(data.date) || data.holiday != null
+                ? 'disabled-table-row'
+                : data.attendance == null
+                ? 'dark-table-row'
+                : ''
+            "
+          >
+            <td
+              (mouseenter)="
+                currentUserEmployee.role == 2
+                  ? null
+                  : onDateColumnMouseEnter(data)
+              "
+              (mouseleave)="
+                currentUserEmployee.role == 2 ? null : onDateColumnMouseLeave()
+              "
+            >
+              <div
+                class="flex-row"
+                style="justify-content: space-between; align-items: center"
+              >
+                <span
+                  *ngIf="
+                    !(editHoliday != null && editHoliday.date == data.date)
+                  "
+                  >{{ showDateFromTimestamp(data.date) }}</span
+                >
+                <i
+                  *ngIf="editHoliday != null && editHoliday.date == data.date"
+                  nz-tooltip
+                  [nzTooltipTitle]="'Cancel'"
+                  nz-icon
+                  style="font-size: 12pt"
+                  [nzType]="'close'"
+                  (click)="
+                    isCreateHolidayLoading ? null : onCreateHolidayCancel()
+                  "
+                ></i>
+                <span
+                  *ngIf="editHoliday != null && editHoliday.date == data.date"
+                >
+                  <app-custom-input-component
+                    style="flex: 1"
+                    placeholder="Name"
+                    [(value)]="editHoliday.name"
+                  ></app-custom-input-component
+                ></span>
+                <i
+                  *ngIf="
+                    hoverDate == data.date &&
+                    isHolidayCreateDeleteVisible &&
+                    data.holiday == null &&
+                    !(editHoliday != null && editHoliday.date == data.date)
+                  "
+                  nz-tooltip
+                  [nzTooltipTitle]="'Add new holiday'"
+                  nz-icon
+                  style="font-size: 12pt"
+                  nzType="plus"
+                  (click)="onCreateHolidayStart(data)"
+                ></i>
+                <i
+                  *ngIf="currentUserEmployee.role != 2 && data.holiday != null"
+                  nz-tooltip
+                  [nzTooltipTitle]="'Remove holiday'"
+                  nz-icon
+                  style="font-size: 12pt"
+                  [nzType]="isCreateHolidayLoading ? 'loading' : 'delete'"
+                  nz-popconfirm
+                  nzPopconfirmTitle="Are you sure you want to delete this holiday?"
+                  nzPopconfirmPlacement="top"
+                  (nzOnConfirm)="
+                    isCreateHolidayLoading ? null : onDeleteHoliday(data)
+                  "
+                ></i>
+                <i
+                  *ngIf="editHoliday != null && editHoliday.date == data.date"
+                  nz-tooltip
+                  [nzTooltipTitle]="'Save'"
+                  nz-icon
+                  style="font-size: 12pt"
+                  [nzType]="isCreateHolidayLoading ? 'loading' : 'check'"
+                  (click)="
+                    isCreateHolidayLoading ? null : onCreateHolidaySave()
+                  "
+                ></i>
+                <i
+                  *ngIf="data.holiday != null"
+                  nz-tooltip
+                  [nzTooltipTitle]="data.holiday.name"
+                  nz-icon
+                  style="font-size: 12pt"
+                  nzType="calendar"
+                ></i>
+              </div>
+            </td>
+            <td>
+              <div [hidden]="editDate === data.date">
+                {{
+                  data.attendance == null
+                    ? ""
+                    : showTime(data.attendance.checkin_time)
+                }}
+              </div>
+
+              <div class="flex-row" *ngIf="editDate === data.date">
+                <app-custom-date-picker-component
+                  style="flex: 1"
+                  type="time"
+                  [(value)]="editAttendance.checkin_time"
+                ></app-custom-date-picker-component>
+              </div>
+            </td>
+            <td>
+              <div [hidden]="editDate === data.date">
+                {{
+                  data.attendance != null &&
+                  data.attendance.checkout_time != null
+                    ? showTime(data.attendance.checkout_time)
+                    : ""
+                }}
+              </div>
+
+              <div class="flex-row" *ngIf="editDate === data.date">
+                <app-custom-date-picker-component
+                  style="flex: 1"
+                  type="time"
+                  [(value)]="editAttendance.checkout_time"
+                ></app-custom-date-picker-component>
+              </div>
+            </td>
+            <td>
+              {{
+                data.attendance != null && data.attendance.checkout_time != null
+                  ? calculateWorkingHour(
+                      data.attendance.checkin_time,
+                      data.attendance.checkout_time,
+                      data.leave
+                    )
+                  : ""
+              }}
+            </td>
+            <td>
+              <i
+                *ngIf="data.leave != null"
+                nz-tooltip
+                [nzTooltipTitle]="getLeaveTooltopTitle(data.leave)"
+                nz-icon
+                [ngStyle]="{
+                  color: checkTodayFromTimestamp(data.date)
+                    ? 'white'
+                    : '#ce2783',
+                  'font-size': '12pt'
+                }"
+                nzType="minus-circle"
+              ></i>
+              <i
+                *ngIf="data.overtime != null"
+                nz-tooltip
+                [nzTooltipTitle]="getOvertimeTooltopTitle(data.overtime)"
+                nz-icon
+                [ngStyle]="{
+                  color: checkTodayFromTimestamp(data.date)
+                    ? 'white'
+                    : '#6767ec',
+                  'font-size': '12pt'
+                }"
+                nzType="clock-circle"
+              ></i>
+            </td>
+            <td style="text-align: right">
+              <a
+                *ngIf="
+                  data.date != editDate &&
+                  data.attendance == null &&
+                  !checkWeekendFromTimestamp(data.date) &&
+                  data.holiday == null
+                "
+                nz-button
+                nzType="link"
+                (click)="startEdit(data)"
+                ><i
+                  nz-icon
+                  [ngStyle]="{
+                    color: checkTodayFromTimestamp(data.date)
+                      ? 'white'
+                      : '#379947',
+                    'font-size': '12pt'
+                  }"
+                  nzType="plus"
+                ></i
+              ></a>
+              <a
+                *ngIf="data.date != editDate && data.attendance != null"
+                nz-button
+                nzType="link"
+                (click)="startEdit(data)"
+                ><i
+                  nz-icon
+                  [ngStyle]="{
+                    color: checkTodayFromTimestamp(data.date)
+                      ? 'white'
+                      : '#2680eb',
+                    'font-size': '12pt'
+                  }"
+                  nzType="edit"
+                ></i
+              ></a>
+              <a
+                *ngIf="data.date == editDate"
+                nz-button
+                nzType="link"
+                (click)="stopEdit()"
+                ><i
+                  nz-icon
+                  [ngStyle]="{
+                    color: checkTodayFromTimestamp(data.date)
+                      ? 'white'
+                      : 'grey',
+                    'font-size': '12pt'
+                  }"
+                  nzType="close"
+                ></i
+              ></a>
+              <a
+                *ngIf="data.date == editDate"
+                [nzLoading]="isUpdateLoading"
+                nz-button
+                nzType="link"
+                (click)="saveEdit(data)"
+                ><i
+                  nz-icon
+                  [ngStyle]="{
+                    color: checkTodayFromTimestamp(data.date)
+                      ? 'white'
+                      : '#2d9d78',
+                    'font-size': '12pt'
+                  }"
+                  nzType="check"
+                ></i
+              ></a>
+              <a
+                *ngIf="data.attendance != null && data.date != editDate"
+                [nzLoading]="isDeleteAttendanceLoading && data.date == editDate"
+                nz-button
+                nzType="link"
+                nz-popconfirm
+                nzPopconfirmTitle="Are you sure you want to delete this attendance data?"
+                nzPopconfirmPlacement="top"
+                (nzOnConfirm)="deleteAttendance(data)"
+                ><i
+                  nz-icon
+                  [ngStyle]="{
+                    color: checkTodayFromTimestamp(data.date)
+                      ? 'white'
+                      : '#e34850',
+                    'font-size': '12pt'
+                  }"
+                  nzType="delete"
+                ></i
+              ></a>
+            </td>
+          </tr>
+        </tbody>
+      </nz-table>
+    </div>
+  </div>
+</div>

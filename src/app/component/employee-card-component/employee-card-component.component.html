@@ -1,0 +1,35 @@
+<div
+  class="employee-card-container"
+  [ngStyle]="{
+    'background-color': isSelected ? '#e6f7ff' : 'white'
+  }"
+>
+  <div class="employee-card-header">
+    <img
+      *ngIf="employee.image_url && employee.image_url != null"
+      [src]="employee.image_url"
+      style="width: 40px; height: 40px"
+    />
+    <i
+      *ngIf="!employee.image_url || employee.image_url == null"
+      nz-icon
+      nzType="user"
+      class="image-placeholder"
+    ></i>
+    <span style="flex: 1">
+      <div class="card-title">{{ employee.name }}</div>
+      <div class="card-subtitle">{{ employee.code }}</div>
+    </span>
+    <a *ngIf="showDetails" nz-button nzType="link" (click)="onDetailsClicked()"
+      >Details</a
+    >
+  </div>
+  <div class="employee-card-content">
+    <i nz-icon nzType="apartment"></i>
+    {{ employee.position }}
+  </div>
+  <div class="employee-card-content">
+    <i nz-icon nzType="deployment-unit"></i>
+    {{ employee.department == null ? "" : employee.department.name }} Department
+  </div>
+</div>

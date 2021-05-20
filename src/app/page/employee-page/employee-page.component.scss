@@ -1,0 +1,54 @@
+.employee-body {
+  display: flex;
+  align-items: stretch;
+  overflow: hidden;
+
+  .employee-detail-container {
+    flex: 1;
+    padding: 8px;
+
+    img {
+      width: 150px;
+      height: 150px;
+      margin-right: 12px;
+    }
+
+    .employee-detail-body {
+      flex: 1;
+
+      .employee-detail-row {
+        margin-bottom: 8px;
+        > * {
+          flex: 1;
+          margin-right: 4px;
+        }
+
+        > :last-child {
+          margin-right: 0;
+        }
+      }
+    }
+  }
+}
+
+::ng-deep .ant-input-disabled,
+.ant-input[disabled],
+::ng-deep
+  .ant-select-disabled.ant-select:not(.ant-select-customize-input)
+  .ant-select-selector {
+  color: #000000aa !important;
+}
+
+@media only screen and (min-width: 1500px) {
+  .supervisors-list-body {
+    ::ng-deep .employee-card-container {
+      width: calc(50% - 4px);
+      display: inline-block;
+    }
+    > app-employee-card-component:nth-child(2n)
+      ::ng-deep
+      .employee-card-container {
+      margin-left: 8px;
+    }
+  }
+}

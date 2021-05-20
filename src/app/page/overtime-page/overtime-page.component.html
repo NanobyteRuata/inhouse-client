@@ -1,0 +1,13 @@
+<div class="body-container">
+  <nz-breadcrumb>
+    <nz-breadcrumb-item> Overtime </nz-breadcrumb-item>
+  </nz-breadcrumb>
+  <div class="overtime-body">
+    <app-employee-search-component
+      (onSelectEmployee)="onSelectEmployee($event)"
+    ></app-employee-search-component>
+    <div>
+      selected {{ selectedEmployee ? selectedEmployee.name : "no one" }}
+    </div>
+  </div>
+</div>

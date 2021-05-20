@@ -1,0 +1,28 @@
+.attendance-body {
+  display: flex;
+  align-items: stretch;
+  overflow: hidden;
+
+  & ::ng-deep .green-table-row.ant-table-row {
+    background-color: #4bc35f;
+    color: white;
+    &:hover > td {
+      background-color: #44b556;
+    }
+  }
+
+  & ::ng-deep .disabled-table-row.ant-table-row {
+    background-color: #b3b3b3;
+    color: white;
+    &:hover > td {
+      background-color: #b3b3b3;
+    }
+  }
+
+  & ::ng-deep .dark-table-row.ant-table-row {
+    background-color: #eaeaea;
+    &:hover > td {
+      background-color: #e1e1e1;
+    }
+  }
+}

@@ -1,0 +1,1 @@
+export const ENCRYPTION_SECRET_KEY = 'SysExeMM2021';
