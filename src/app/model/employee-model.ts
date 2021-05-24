@@ -12,5 +12,6 @@ export class Employee {
   position: string;
   department: Department;
   role: number;
-  joined_date: number;
+  //   joined_date: number;
+  joined_date: any;
 }

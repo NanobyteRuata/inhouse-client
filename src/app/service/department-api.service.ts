@@ -1,21 +1,24 @@
 import { Injectable } from '@angular/core';
+import { BaseApiService } from './base-api.service';
 import { TestApi } from './test-api';
 
 @Injectable({
   providedIn: 'root',
 })
 export class DepartmentApiService {
-  constructor() {}
+  constructor(private baseApiService: BaseApiService) {}
 
   public getDepartments() {
-    return TestApi.getDepartments();
+    return this.baseApiService.get('department');
   }
 
   public deleteDepartment(id: number, replaceDepartmentId: number) {
-    return TestApi.deleteDepartment(id, replaceDepartmentId);
+    return this.baseApiService.post(`department/${id}`, {
+      replace_department_id: replaceDepartmentId,
+    });
   }
 
   public createDepartment(name: string) {
-    return TestApi.createDepartment(name);
+    return this.baseApiService.post('department', { name });
   }
 }

@@ -11,6 +11,7 @@ import { EncryptionUtil } from 'src/app/util/encryption-util';
 import { Department } from 'src/app/model/department-model';
 import { Employee } from 'src/app/model/employee-model';
 import { Response } from 'src/app/model/response-model';
+import { formatDate } from '@angular/common';
 
 @Component({
   selector: 'app-employee-page',
@@ -179,6 +180,8 @@ export class EmployeePageComponent implements OnInit {
       .subscribe((response: Response) => {
         if (response.success) {
           this.departments.push(response.result as Department);
+          this.employeeSearchComponent1?.departments.push(response.result);
+          this.employeeSearchComponent2?.departments.push(response.result);
           this.message.create('success', response.message);
           this.newDepartmentName = '';
           this.isCreateDepartmentModalVisible = false;
@@ -270,11 +273,7 @@ export class EmployeePageComponent implements OnInit {
 
     this.isChangePasswordLoading = true;
     this.employeeApiService
-      .changePassword(
-        this.selectedEmployee.id,
-        this.oldPassword,
-        this.newPassword
-      )
+      .changePassword(this.oldPassword, this.newPassword)
       .subscribe((response: Response) => {
         if (response.success) {
           this.message.create('success', response.message);
@@ -455,6 +454,13 @@ export class EmployeePageComponent implements OnInit {
 
     this.isCreateEmployeeLoading = true;
 
+    //temp
+    this.selectedEmployee.joined_date = formatDate(
+      this.selectedEmployee.joined_date,
+      'yyyy-MM-dd',
+      'en-US'
+    );
+
     if (this.selectedEmployee.id == null) {
       this.employeeApiService
         .createEmployee(this.selectedEmployee)
@@ -492,7 +498,7 @@ export class EmployeePageComponent implements OnInit {
       this.currentUserEmployee = response.result;
       localStorage.setItem(
         'current_employee',
-        JSON.stringify(this.currentUserEmployee)
+        EncryptionUtil.encryptData(JSON.stringify(this.currentUserEmployee))
       );
     }
     this.message.create('success', response.message);

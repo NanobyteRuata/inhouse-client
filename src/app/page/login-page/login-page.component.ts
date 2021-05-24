@@ -34,10 +34,10 @@ export class LoginPageComponent implements OnInit {
       .subscribe((response: Response) => {
         if (response.success) {
           let encryptedUserDataJsonString = EncryptionUtil.encryptData(
-            JSON.stringify(response.result.employee as Employee)
+            JSON.stringify(response.result.data as Employee)
           );
           let encryptedToken = EncryptionUtil.encryptData(
-            JSON.stringify(response.result.auth_token)
+            JSON.stringify(response.result.token)
           );
           if (encryptedUserDataJsonString == null || encryptedToken == null) {
             this.message.create(

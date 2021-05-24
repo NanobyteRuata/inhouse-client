@@ -1,38 +1,40 @@
 import { Injectable } from '@angular/core';
 import { Employee } from '../model/employee-model';
+import { BaseApiService } from './base-api.service';
 import { TestApi } from './test-api';
 
 @Injectable({
   providedIn: 'root',
 })
 export class EmployeeApiService {
-  constructor() {}
+  constructor(private baseApiService: BaseApiService) {}
 
   getEmployees(keyword?: string, departmentId?: number) {
-    return TestApi.getEmployeesByFilter(keyword, departmentId);
+    return this.baseApiService.get(
+      `employee?keyword=${keyword}&department_id=${departmentId}`
+    );
   }
 
   createEmployee(employee: Employee) {
-    return TestApi.createEmployee(employee);
+    return this.baseApiService.post(`employee`, employee);
   }
 
   getEmployeeById(employee_id: number) {
     return TestApi.getEmployeeById(employee_id);
   }
 
-  updateEmployee(employee: any) {
-    return TestApi.updateEmployee(employee);
+  updateEmployee(employee: Employee) {
+    return this.baseApiService.put(`employee/${employee.id}`, employee);
   }
 
   deleteEmployee(id: number) {
-    return TestApi.deleteEmployee(id);
+    return this.baseApiService.delete(`employee/${id}`);
   }
 
-  changePassword(
-    employee_id: number,
-    old_password: string,
-    new_password: string
-  ) {
-    return TestApi.changePassword(employee_id, old_password, new_password);
+  changePassword(old_password: string, new_password: string) {
+    return this.baseApiService.post(`auth/change-password`, {
+      old_password,
+      new_password,
+    });
   }
 }
