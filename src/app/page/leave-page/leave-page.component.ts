@@ -12,6 +12,7 @@ import { LeaveApiService } from 'src/app/service/leave-api.service';
 import { LeaveTypeApiService } from 'src/app/service/leave-type-api.service';
 import { TestApi } from 'src/app/service/test-api';
 import { CloneUtil } from 'src/app/util/clone-util';
+import { CommonApiUtil } from 'src/app/util/common-api-util';
 import { DateUtil } from 'src/app/util/date-util';
 import { EncryptionUtil } from 'src/app/util/encryption-util';
 
@@ -215,7 +216,7 @@ export class LeavePageComponent implements OnInit {
           this.leaveTypeFilterList = tempLeaveTypesFilterList;
           this.isLeaveAllowanceTableLoading = false;
 
-          this.checkLeaveAllowanceUpdate();
+          this.checkLeaveAllowanceUpdate(this.leaveAllowanceList);
         } else {
           this.message.error(response.message);
         }
@@ -228,40 +229,14 @@ export class LeavePageComponent implements OnInit {
     );
   }
 
-  checkLeaveAllowanceUpdate() {
-    let intervalCount = 0;
-    let waitgetAllLeaveReady = setInterval(() => {
-      if (intervalCount > 10) {
-        clearInterval(waitgetAllLeaveReady);
-      } else if (
-        this.allLeaveTypeList.length > 0 &&
-        this.selectedEmployee != null
-      ) {
-        let leaveTypeNameList = [];
-        for (let leaveType of this.allLeaveTypeList) {
-          if (
-            leaveType.valid_at >=
-            new Date(
-              new Date().getTime() -
-                new Date(this.selectedEmployee.joined_date).getTime()
-            ).getMonth()
-          ) {
-            leaveTypeNameList.push(leaveType.name);
-          }
-        }
-        if (leaveTypeNameList.length > 0) {
-          this.allowanceUpdateMessage =
-            this.selectedEmployee.name +
-            ' should have leave allowance for ' +
-            leaveTypeNameList.join(', ') +
-            '.';
-          this.message.warning(this.allowanceUpdateMessage);
-        }
-        clearInterval(waitgetAllLeaveReady);
-      } else {
-        intervalCount++;
-      }
-    }, 1000);
+  checkLeaveAllowanceUpdate(leaveAllowanceList: LeaveAllowance[] = null) {
+    CommonApiUtil.checkLeaveAllowanceUpdate(
+      this._leaveAllowanceApiService,
+      this._leaveTypeApiService,
+      this.selectedEmployee,
+      this.message,
+      leaveAllowanceList
+    );
   }
 
   isLeaveDeleteLoading = false;
@@ -313,7 +288,7 @@ export class LeavePageComponent implements OnInit {
             response.result,
           ];
           this.message.success(response.message);
-          this.checkLeaveAllowanceUpdate();
+          this.checkLeaveAllowanceUpdate(this.leaveAllowanceList);
         } else {
           this.message.error(response.message);
         }

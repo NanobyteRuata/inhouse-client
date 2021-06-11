@@ -22,6 +22,7 @@ export class OvertimePageComponent implements OnInit {
 
   tableHeight: string = '500px';
   overtimeDataLength: number = 0;
+  isNewOvertimeModalVisible: boolean = false;
 
   currentUserEmployee: Employee;
   selectedEmployee: Employee;
@@ -108,8 +109,8 @@ export class OvertimePageComponent implements OnInit {
           this.overtimeList = response.result;
         } else {
           this._message.error(response.message);
-          this.isOvertimeTableLoading = false;
         }
+        this.isOvertimeTableLoading = false;
       },
       (err) => {
         this._message.error(err.message);

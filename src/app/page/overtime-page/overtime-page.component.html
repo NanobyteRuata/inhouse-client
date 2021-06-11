@@ -1,7 +1,21 @@
 <div class="body-container">
-  <nz-breadcrumb>
-    <nz-breadcrumb-item> Overtime </nz-breadcrumb-item>
-  </nz-breadcrumb>
+  <div class="flex-row">
+    <nz-breadcrumb>
+      <nz-breadcrumb-item> Overtime </nz-breadcrumb-item>
+    </nz-breadcrumb>
+    <div style="flex: 1"></div>
+    <button
+      nz-button
+      nzType="primary"
+      (click)="isNewOvertimeModalVisible = true"
+    >
+      <i nz-icon nzType="plus"></i>New Overtime
+    </button>
+    <app-new-overtime-dialog
+      [currentUserEmployee]="currentUserEmployee"
+      [(isNewOvertimeModalVisible)]="isNewOvertimeModalVisible"
+    ></app-new-overtime-dialog>
+  </div>
   <div class="overtime-body">
     <app-employee-search-component
       #employeeSearchComponent

@@ -78,6 +78,7 @@ import { EmployeeCardComponentComponent } from './component/employee-card-compon
 import { MonthYearSelectComponentComponent } from './component/month-year-select-component/month-year-select-component.component';
 import { LeaveTypePageComponent } from './page/leave-type-page/leave-type-page.component';
 import { NewLeaveDialogComponent } from './component/dialog/new-leave-dialog/new-leave-dialog.component';
+import { NewOvertimeDialogComponent } from './component/dialog/new-overtime-dialog/new-overtime-dialog.component';
 
 const icons: IconDefinition[] = [
   EyeInvisibleOutline,
@@ -128,6 +129,7 @@ registerLocaleData(en);
     MonthYearSelectComponentComponent,
     LeaveTypePageComponent,
     NewLeaveDialogComponent,
+    NewOvertimeDialogComponent,
   ],
   imports: [
     BrowserModule,

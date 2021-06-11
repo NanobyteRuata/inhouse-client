@@ -1,0 +1,74 @@
+<nz-modal
+  #newOvertimeModal
+  [(nzVisible)]="isNewOvertimeModalVisible"
+  nzTitle="New Overtime"
+  (nzOnCancel)="onNewOvertimeCancel()"
+  (nzOnOk)="currentUserEmployee != null ? onNewOvertimeSubmit() : null"
+  [nzOkLoading]="isNewOvertimeModalLoading"
+  [nzOkDisabled]="isNewOvertimeSubmitDisabled"
+  [nzOkText]="
+    newOvertimeEmployeeValue == null ||
+    (newOvertimeEmployeeValue != null &&
+      currentUserEmployee != null &&
+      newOvertimeEmployeeValue.id == currentUserEmployee.id)
+      ? 'Request'
+      : 'Create'
+  "
+>
+  <ng-container *nzModalContent>
+    <app-custom-select-component
+      label="Employee"
+      [options]="newOvertimeEmployeeOptions"
+      displayProperty="name"
+      [(value)]="newOvertimeEmployeeValue"
+      (valueChange)="onNewOvertimeEmployeeSelect($event)"
+      [isLoading]="isNewOvertimeEmployeeSelectLoading"
+    ></app-custom-select-component>
+    <div class="spacer"></div>
+    <app-custom-date-picker-component
+      style="flex: 1"
+      label="Date"
+      [(value)]="newOvertimeDateValue"
+      (valueChanged)="onDateChose($event)"
+    ></app-custom-date-picker-component>
+    <div class="spacer"></div>
+    <div class="flex-row">
+      <app-custom-date-picker-component
+        style="flex: 1"
+        label="Start Time"
+        type="time"
+        [disabled]="newOvertimeDateValue == null"
+        [(value)]="newOvertimeStartTimeValue"
+      ></app-custom-date-picker-component>
+      <div style="width: 8px"></div>
+      <app-custom-date-picker-component
+        style="flex: 1"
+        label="End Time"
+        type="time"
+        [disabled]="newOvertimeDateValue == null"
+        [(value)]="newOvertimeEndTimeValue"
+      ></app-custom-date-picker-component>
+    </div>
+    <div class="spacer"></div>
+    <app-custom-select-component
+      label="Status"
+      [options]="newOvertimeStatusOptions"
+      [(value)]="newOvertimeStatusValue"
+      [disabled]="
+        newOvertimeEmployeeValue == null ||
+        (newOvertimeEmployeeValue != null &&
+          newOvertimeEmployeeValue.id == currentUserEmployee.id)
+      "
+      displayProperty="text"
+    ></app-custom-select-component>
+    <div class="spacer"></div>
+    <app-custom-select-component
+      label="Report to"
+      [options]="newOvertimeReportToOptions"
+      [disabled]="newOvertimeEmployeeValue == null"
+      [isLoading]="isNewOvertimeReportToSelectLoading"
+      [(value)]="newOvertimeReportToValue"
+      displayProperty="name"
+    ></app-custom-select-component>
+  </ng-container>
+</nz-modal>
