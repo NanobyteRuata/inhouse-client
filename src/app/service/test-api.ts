@@ -1,5 +1,6 @@
 import { observable, Observable } from 'rxjs';
 import { CloneUtil } from '../util/clone-util';
+import { DateUtil } from '../util/date-util';
 import { EncryptionUtil } from '../util/encryption-util';
 
 export class TestApi {
@@ -401,7 +402,7 @@ export class TestApi {
               ) {
                 return false;
               }
-              if (leave.employee_id != employee_id) {
+              if (leave.emp.id != employee_id) {
                 return false;
               }
               return true;
@@ -430,7 +431,7 @@ export class TestApi {
               ) {
                 return false;
               }
-              if (overtime.employee_id != employee_id) {
+              if (overtime.emp.id != employee_id) {
                 return false;
               }
               return true;
@@ -480,7 +481,7 @@ export class TestApi {
           new Date().getDate()
         ).getTime();
         let todayAttendance = this.attendances.find((att) => att.date == today);
-        if (todayAttendance != null && todayAttendance.checkin_time != null) {
+        if (todayAttendance != null && todayAttendance.check_in_time != null) {
           observer.next({
             code: 400,
             success: false,
@@ -493,8 +494,8 @@ export class TestApi {
             id: this.attendances.length,
             employee_id: currentUserEmployee.id,
             date: today,
-            checkin_time: new Date().getTime(),
-            checkout_time: null,
+            check_in_time: new Date().getTime(),
+            check_out_time: null,
           };
           this.attendances.push(todayAttendance);
           observer.next({
@@ -606,6 +607,62 @@ export class TestApi {
     });
   }
 
+  static getLeaveTypes() {
+    return new Observable((observer) => {
+      setTimeout(() => {
+        observer.next({
+          code: 200,
+          success: true,
+          message: 'Successfully retrieved all leave types!',
+          result: TestApi.leave_types,
+          error: null,
+        });
+      }, 1000);
+    });
+  }
+
+  static getLeaveAllowances(emp_id: number) {
+    return new Observable((observer) => {
+      setTimeout(() => {
+        observer.next({
+          code: 200,
+          success: true,
+          message:
+            'Successfully retrieved all leave allowances for ' +
+            TestApi.employees.find((emp) => emp.id == emp_id).name +
+            '!',
+          result: TestApi.leave_allowances.filter((la) => la.emp.id == emp_id),
+          error: null,
+        });
+      }, 1000);
+    });
+  }
+
+  static getLeaves(emp_id: number, month: number, year: number) {
+    return new Observable((observer) => {
+      setTimeout(() => {
+        observer.next({
+          code: 200,
+          success: true,
+          message:
+            'Successfully retrieved all leaves for ' +
+            TestApi.employees.find((emp) => emp.id == emp_id).name +
+            '!',
+          result: TestApi.leaves.filter(
+            (leave) =>
+              leave.emp.id == emp_id && this.isInMonth(leave.date, month, year)
+          ),
+          error: null,
+        });
+      }, 1000);
+    });
+  }
+
+  static isInMonth(timestamp: number, month: number, year: number) {
+    let date = new Date(timestamp);
+    return date.getMonth() == month && date.getFullYear() == year;
+  }
+
   // ---------- Databases ---------- //
   //                |
   //                |
@@ -628,7 +685,7 @@ export class TestApi {
     },
   ];
 
-  static employees = [
+  public static employees = [
     {
       id: 0,
       username: 'emp1',
@@ -896,94 +953,123 @@ export class TestApi {
       id: 0,
       employee_id: 0,
       date: 1619976600000,
-      checkin_time: 1620004800000,
-      checkout_time: 1620037800000,
+      check_in_time: 1620004800000,
+      check_out_time: 1620037800000,
     },
     {
       id: 1,
       employee_id: 2,
       date: 1619976600000,
-      checkin_time: 1620004800000,
-      checkout_time: 1620038100000,
+      check_in_time: 1620004800000,
+      check_out_time: 1620038100000,
     },
     {
       id: 2,
       employee_id: 4,
       date: 1619976600000,
-      checkin_time: 1620005700000,
-      checkout_time: 1620038100000,
+      check_in_time: 1620005700000,
+      check_out_time: 1620038100000,
     },
     {
       id: 3,
       employee_id: 0,
       date: 1620063000000,
-      checkin_time: 1620004800000,
-      checkout_time: 1620124500000,
+      check_in_time: 1620004800000,
+      check_out_time: 1620124500000,
     },
     {
       id: 4,
       employee_id: 0,
       date: 1620149400000,
-      checkin_time: 1620178500000,
-      checkout_time: 1620210900000,
+      check_in_time: 1620178500000,
+      check_out_time: 1620210900000,
     },
     {
       id: 5,
       employee_id: 2,
       date: 1620149400000,
-      checkin_time: 1620177600000,
-      checkout_time: 1620210900000,
+      check_in_time: 1620177600000,
+      check_out_time: 1620210900000,
     },
     {
       id: 6,
       employee_id: 2,
       date: 1619544600000,
-      checkin_time: 1619572800000,
-      checkout_time: 1619605800000,
+      check_in_time: 1619572800000,
+      check_out_time: 1619605800000,
     },
     {
       id: 7,
       employee_id: 4,
       date: 1619544600000,
-      checkin_time: 1619572800000,
-      checkout_time: 1619605800000,
+      check_in_time: 1619572800000,
+      check_out_time: 1619605800000,
     },
     {
       id: 8,
       employee_id: 2,
       date: 1619631000000,
-      checkin_time: 1619660100000,
-      checkout_time: 1619692500000,
+      check_in_time: 1619660100000,
+      check_out_time: 1619692500000,
     },
     {
       id: 9,
       employee_id: 4,
       date: 1619631000000,
-      checkin_time: 1619659200000,
-      checkout_time: 1619692200000,
+      check_in_time: 1619659200000,
+      check_out_time: 1619692200000,
     },
     {
       id: 10,
       employee_id: 0,
       date: 1619631000000,
-      checkin_time: 1619659800000,
-      checkout_time: 1619674200000,
+      check_in_time: 1619659800000,
+      check_out_time: 1619674200000,
+    },
+  ];
+
+  static getLeaveTypesDirect() {
+    return this.leave_types;
+  }
+
+  static leave_types = [
+    {
+      id: 0,
+      name: 'Casual Leave',
+      leave_days: 6.0,
+      valid_at: 6,
+    },
+    {
+      id: 1,
+      name: 'Medical Leave',
+      leave_days: 10.0,
+      valid_at: 12,
+    },
+    {
+      id: 2,
+      name: 'Maternity Leave',
+      leave_days: 30.0,
+      valid_at: 12,
+    },
+  ];
+
+  static leave_allowances = [
+    {
+      id: 0,
+      emp: TestApi.employees.find((emp) => emp.id == 0),
+      leave_type: TestApi.leave_types.find((lt) => lt.id == 0),
+      used_days: 1,
     },
   ];
 
   static leaves = [
     {
       id: 0,
-      employee_id: 0,
+      emp: TestApi.employees.find((emp) => emp.id == 0),
       date: 1620322200000,
-      leave_type: {
-        id: 0,
-        name: 'Casual Leave',
-        leave_days: 6.0,
-        valid_at: 6,
-      },
+      leave_type: TestApi.leave_types.find((lt) => lt.id == 0),
       type: 2, // 0 = full day, 1 = AM, 2 = PM
-      report_to_id: 1,
+      report_to: TestApi.employees.find((emp) => emp.id == 2),
       status: 0, // 0 = pending, 1 = approved, 2 = rejected
     },
   ];
@@ -991,13 +1077,13 @@ export class TestApi {
   static overtimes = [
     {
       id: 0,
-      employee_id: 0,
+      emp: TestApi.employees.find((emp) => emp.id == 0),
       date: 1620149400000,
       from_time: 1620212400000,
       to_time: 1620219600000,
-      checkin_time: 1620212400000,
-      checkout_time: 1620219300000,
-      report_to_id: 1,
+      check_in_time: 1620212400000,
+      check_out_time: 1620219300000,
+      report_to: TestApi.employees.find((emp) => emp.id == 2),
       status: 0, // 0 = pending, 1 = approved, 2 = rejected
     },
   ];

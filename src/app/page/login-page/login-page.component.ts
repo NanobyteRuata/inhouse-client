@@ -29,9 +29,8 @@ export class LoginPageComponent implements OnInit {
     this.isLoading = true;
 
     // TODO: Implement login with real api
-    this.authApiService
-      .login(this.username, this.password)
-      .subscribe((response: Response) => {
+    this.authApiService.login(this.username, this.password).subscribe(
+      (response: Response) => {
         if (response.success) {
           let encryptedUserDataJsonString = EncryptionUtil.encryptData(
             JSON.stringify(response.result.data as Employee)
@@ -54,7 +53,12 @@ export class LoginPageComponent implements OnInit {
           this.message.create('error', response.message);
         }
         this.isLoading = false;
-      });
+      },
+      (err) => {
+        this.message.create('error', err.message);
+        this.isLoading = false;
+      }
+    );
   }
 
   onPasswordKeydown(event: any) {

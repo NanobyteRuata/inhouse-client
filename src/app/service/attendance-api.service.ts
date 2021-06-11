@@ -1,25 +1,37 @@
 import { Injectable } from '@angular/core';
+import { Attendance } from '../model/attendance-model';
+import { BaseApiService } from './base-api.service';
 import { TestApi } from './test-api';
 
 @Injectable({
   providedIn: 'root',
 })
 export class AttendanceApiService {
-  constructor() {}
+  constructor(private baseApiService: BaseApiService) {}
 
   getAttendance(employee_id: number, month: number, year: number) {
-    return TestApi.getAttendance(employee_id, month, year);
+    return this.baseApiService.get(
+      `attendance?emp_id=${employee_id}&month=${month}&year=${year}`
+    );
   }
 
-  createAttendance(attendance: any) {
-    return TestApi.createAttendance(attendance);
+  checkIn() {
+    return this.baseApiService.post(`attendance/check-in`, {});
   }
 
-  updateAttendance(attendance: any) {
-    return TestApi.updateAttendance(attendance);
+  checkOut() {
+    return this.baseApiService.post(`attendance/check-out`, {});
+  }
+
+  createAttendance(attendance: Attendance) {
+    return this.baseApiService.post('attendance', attendance);
+  }
+
+  updateAttendance(attendance: Attendance) {
+    return this.baseApiService.put(`attendance/${attendance.id}`, attendance);
   }
 
   deleteAttendance(attendance_id: number) {
-    return TestApi.deleteAttendance(attendance_id);
+    return this.baseApiService.delete(`attendance/${attendance_id}`);
   }
 }

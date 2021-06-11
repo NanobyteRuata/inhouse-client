@@ -1,20 +1,20 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { ResetPasswordPageComponent } from './reset-password-page.component';
+import { NewLeaveDialogComponent } from './new-leave-dialog.component';
 
-describe('ResetPasswordPageComponent', () => {
-  let component: ResetPasswordPageComponent;
-  let fixture: ComponentFixture<ResetPasswordPageComponent>;
+describe('NewLeaveDialogComponent', () => {
+  let component: NewLeaveDialogComponent;
+  let fixture: ComponentFixture<NewLeaveDialogComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ ResetPasswordPageComponent ]
+      declarations: [ NewLeaveDialogComponent ]
     })
     .compileComponents();
   });
 
   beforeEach(() => {
-    fixture = TestBed.createComponent(ResetPasswordPageComponent);
+    fixture = TestBed.createComponent(NewLeaveDialogComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

@@ -2,4 +2,23 @@
   display: flex;
   align-items: stretch;
   overflow: hidden;
+
+  .leave-content {
+    flex: 1;
+    margin: 0 16px;
+
+    & > {
+      height: 100%;
+
+      ::ng-deep .ant-tabs {
+        height: 100%;
+
+        .ant-tabs-content-holder,
+        .ant-tabs-content,
+        .ant-tabs-tabpane {
+          height: 100%;
+        }
+      }
+    }
+  }
 }

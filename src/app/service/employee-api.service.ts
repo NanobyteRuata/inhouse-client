@@ -1,4 +1,6 @@
+import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
+import { ApiConstants } from '../constants/api-constants';
 import { Employee } from '../model/employee-model';
 import { BaseApiService } from './base-api.service';
 import { TestApi } from './test-api';
@@ -7,11 +9,16 @@ import { TestApi } from './test-api';
   providedIn: 'root',
 })
 export class EmployeeApiService {
-  constructor(private baseApiService: BaseApiService) {}
+  constructor(
+    private baseApiService: BaseApiService,
+    private http: HttpClient
+  ) {}
 
   getEmployees(keyword?: string, departmentId?: number) {
     return this.baseApiService.get(
-      `employee?keyword=${keyword}&department_id=${departmentId}`
+      `employee?keyword=${keyword != null ? keyword : ''}&department_id=${
+        departmentId != null && departmentId > -1 ? departmentId : ''
+      }`
     );
   }
 
@@ -32,9 +39,16 @@ export class EmployeeApiService {
   }
 
   changePassword(old_password: string, new_password: string) {
-    return this.baseApiService.post(`auth/change-password`, {
+    return this.baseApiService.post(`employee/change-password`, {
       old_password,
       new_password,
     });
+  }
+
+  uploadImage(id: number, data: any) {
+    return this.http.put(
+      `${ApiConstants.BASE_URL}employee/${id}/upload-image`,
+      data
+    );
   }
 }

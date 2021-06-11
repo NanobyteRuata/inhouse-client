@@ -18,6 +18,7 @@
       <app-month-year-select-component
         #monthYearSelectComponent
         (onChange)="onMonthChange($event)"
+        [allowFuture]="true"
       ></app-month-year-select-component>
       <nz-table
         size="small"
@@ -32,7 +33,7 @@
         <thead>
           <tr>
             <th
-              nzSortOrder="ascend"
+              nzSortOrder="descend"
               [nzSortFn]="dateSortFunction"
               [nzFilters]="dateFilterList"
               [nzFilterFn]="dateFilterFunction"
@@ -55,9 +56,9 @@
           <tr
             *ngFor="let data of attendanceTable.data"
             [ngClass]="
-              checkTodayFromTimestamp(data.date)
+              checkToday(data.date)
                 ? 'green-table-row'
-                : checkWeekendFromTimestamp(data.date) || data.holiday != null
+                : checkWeekend(data.date) || data.holiday != null
                 ? 'disabled-table-row'
                 : data.attendance == null
                 ? 'dark-table-row'
@@ -82,7 +83,7 @@
                   *ngIf="
                     !(editHoliday != null && editHoliday.date == data.date)
                   "
-                  >{{ showDateFromTimestamp(data.date) }}</span
+                  >{{ showDayOnly(data.date) }}</span
                 >
                 <i
                   *ngIf="editHoliday != null && editHoliday.date == data.date"
@@ -156,26 +157,9 @@
             <td>
               <div [hidden]="editDate === data.date">
                 {{
-                  data.attendance == null
-                    ? ""
-                    : showTime(data.attendance.checkin_time)
-                }}
-              </div>
-
-              <div class="flex-row" *ngIf="editDate === data.date">
-                <app-custom-date-picker-component
-                  style="flex: 1"
-                  type="time"
-                  [(value)]="editAttendance.checkin_time"
-                ></app-custom-date-picker-component>
-              </div>
-            </td>
-            <td>
-              <div [hidden]="editDate === data.date">
-                {{
                   data.attendance != null &&
-                  data.attendance.checkout_time != null
-                    ? showTime(data.attendance.checkout_time)
+                  data.attendance.check_in_time != null
+                    ? showTimeIn12(data.attendance.check_in_time)
                     : ""
                 }}
               </div>
@@ -184,16 +168,35 @@
                 <app-custom-date-picker-component
                   style="flex: 1"
                   type="time"
-                  [(value)]="editAttendance.checkout_time"
+                  [(value)]="editAttendance.check_in_time"
+                ></app-custom-date-picker-component>
+              </div>
+            </td>
+            <td>
+              <div [hidden]="editDate === data.date">
+                {{
+                  data.attendance != null &&
+                  data.attendance.check_out_time != null
+                    ? showTimeIn12(data.attendance.check_out_time)
+                    : ""
+                }}
+              </div>
+
+              <div class="flex-row" *ngIf="editDate === data.date">
+                <app-custom-date-picker-component
+                  style="flex: 1"
+                  type="time"
+                  [(value)]="editAttendance.check_out_time"
                 ></app-custom-date-picker-component>
               </div>
             </td>
             <td>
               {{
-                data.attendance != null && data.attendance.checkout_time != null
+                data.attendance != null &&
+                data.attendance.check_out_time != null
                   ? calculateWorkingHour(
-                      data.attendance.checkin_time,
-                      data.attendance.checkout_time,
+                      data.attendance.check_in_time,
+                      data.attendance.check_out_time,
                       data.leave
                     )
                   : ""
@@ -206,9 +209,7 @@
                 [nzTooltipTitle]="getLeaveTooltopTitle(data.leave)"
                 nz-icon
                 [ngStyle]="{
-                  color: checkTodayFromTimestamp(data.date)
-                    ? 'white'
-                    : '#ce2783',
+                  color: checkToday(data.date) ? 'white' : '#ce2783',
                   'font-size': '12pt'
                 }"
                 nzType="minus-circle"
@@ -219,9 +220,7 @@
                 [nzTooltipTitle]="getOvertimeTooltopTitle(data.overtime)"
                 nz-icon
                 [ngStyle]="{
-                  color: checkTodayFromTimestamp(data.date)
-                    ? 'white'
-                    : '#6767ec',
+                  color: checkToday(data.date) ? 'white' : '#6767ec',
                   'font-size': '12pt'
                 }"
                 nzType="clock-circle"
@@ -232,7 +231,7 @@
                 *ngIf="
                   data.date != editDate &&
                   data.attendance == null &&
-                  !checkWeekendFromTimestamp(data.date) &&
+                  !checkWeekend(data.date) &&
                   data.holiday == null
                 "
                 nz-button
@@ -241,9 +240,7 @@
                 ><i
                   nz-icon
                   [ngStyle]="{
-                    color: checkTodayFromTimestamp(data.date)
-                      ? 'white'
-                      : '#379947',
+                    color: checkToday(data.date) ? 'white' : '#379947',
                     'font-size': '12pt'
                   }"
                   nzType="plus"
@@ -257,9 +254,7 @@
                 ><i
                   nz-icon
                   [ngStyle]="{
-                    color: checkTodayFromTimestamp(data.date)
-                      ? 'white'
-                      : '#2680eb',
+                    color: checkToday(data.date) ? 'white' : '#2680eb',
                     'font-size': '12pt'
                   }"
                   nzType="edit"
@@ -273,9 +268,7 @@
                 ><i
                   nz-icon
                   [ngStyle]="{
-                    color: checkTodayFromTimestamp(data.date)
-                      ? 'white'
-                      : 'grey',
+                    color: checkToday(data.date) ? 'white' : 'grey',
                     'font-size': '12pt'
                   }"
                   nzType="close"
@@ -290,9 +283,7 @@
                 ><i
                   nz-icon
                   [ngStyle]="{
-                    color: checkTodayFromTimestamp(data.date)
-                      ? 'white'
-                      : '#2d9d78',
+                    color: checkToday(data.date) ? 'white' : '#2d9d78',
                     'font-size': '12pt'
                   }"
                   nzType="check"
@@ -310,9 +301,7 @@
                 ><i
                   nz-icon
                   [ngStyle]="{
-                    color: checkTodayFromTimestamp(data.date)
-                      ? 'white'
-                      : '#e34850',
+                    color: checkToday(data.date) ? 'white' : '#e34850',
                     'font-size': '12pt'
                   }"
                   nzType="delete"

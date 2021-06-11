@@ -2,8 +2,15 @@
   <button nz-button nzType="primary" (click)="onArrowClicked('left', $event)">
     <i nz-icon nzType="arrow-left"></i>
   </button>
-  <span style="flex: 1; text-align: center">{{ getMonth }} {{ getYear }}</span>
-  <button nz-button nzType="primary" (click)="onArrowClicked('right', $event)">
+  <span style="flex: 1; text-align: center"
+    >{{ type == "year" ? null : getMonth }} {{ getYear }}</span
+  >
+  <button
+    nz-button
+    nzType="primary"
+    [disabled]="checkDisableNext()"
+    (click)="onArrowClicked('right', $event)"
+  >
     <i nz-icon nzType="arrow-right"></i>
   </button>
 </div>

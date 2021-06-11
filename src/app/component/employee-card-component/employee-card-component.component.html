@@ -7,7 +7,7 @@
   <div class="employee-card-header">
     <img
       *ngIf="employee.image_url && employee.image_url != null"
-      [src]="employee.image_url"
+      [src]="getImageUrl(employee.image_url)"
       style="width: 40px; height: 40px"
     />
     <i

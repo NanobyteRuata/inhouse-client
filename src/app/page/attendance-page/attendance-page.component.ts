@@ -27,18 +27,10 @@ export class AttendancePageComponent implements OnInit {
 
   // To use static DateUtil functions in HTML side,
   // we need to assign them into a local variable
-  showDateFromTimestamp = DateUtil.showDateFromTimestamp;
-  showTime = DateUtil.show12TimeFromTimestamp;
-  checkWeekendFromTimestamp = DateUtil.checkWeekendFromTimestamp;
-  checkTodayFromTimestamp(timestamp: number) {
-    let todayDate = new Date();
-    let incomingDate = new Date(timestamp);
-    return (
-      todayDate.getDate() == incomingDate.getDate() &&
-      todayDate.getMonth() == incomingDate.getMonth() &&
-      todayDate.getFullYear() == incomingDate.getFullYear()
-    );
-  }
+  showDayOnly = DateUtil.showDayOnly;
+  showTimeIn12 = DateUtil.showTimeIn12;
+  checkWeekend = DateUtil.checkWeekend;
+  checkToday = DateUtil.checkToday;
 
   tableHeight: string = '500px';
 
@@ -58,22 +50,22 @@ export class AttendancePageComponent implements OnInit {
   editDate: number | null = null;
   editProperty: string | null = null;
   editAttendance: Attendance;
-  dateSortFunction = (a: any, b: any) => {
+  dateSortFunction = (a: any, b: any): number => {
     let aDate: Date = new Date(a.date);
     let bDate: Date = new Date(b.date);
-    return aDate.getTime() - bDate.getTime();
+    return bDate.getTime() - aDate.getTime();
   };
   dateFilterList = [
     { text: 'Weekends', value: 0 },
     { text: 'Weekdays', value: 1 },
     { text: 'Holidays', value: 2 },
   ];
-  dateFilterFunction = (statusIdList: any[], item: any) =>
+  dateFilterFunction = (statusIdList: any[], item: any): boolean =>
     statusIdList.some((statusId) =>
       statusId == 0
-        ? this.checkWeekendFromTimestamp(item.date)
+        ? this.checkWeekend(item.date)
         : statusId == 1
-        ? !this.checkWeekendFromTimestamp(item.date)
+        ? !this.checkWeekend(item.date)
         : item.holiday != null
     );
   remarksFilterList = [
@@ -81,7 +73,7 @@ export class AttendancePageComponent implements OnInit {
     { text: 'Overtime', value: 1 },
     { text: 'No Attendance', value: 2 },
   ];
-  remarksFilterFunction = (statusIdList: any[], item: any) =>
+  remarksFilterFunction = (statusIdList: any[], item: any): boolean =>
     statusIdList.some((statusId) =>
       statusId == 0
         ? item.leave != null
@@ -114,7 +106,7 @@ export class AttendancePageComponent implements OnInit {
   }
 
   // get current user data from localStorage
-  initializeCurrentUser() {
+  initializeCurrentUser(): void {
     let currentUserDataJsonString = localStorage.getItem('current_employee');
     let decryptedUserData = EncryptionUtil.decryptData(
       currentUserDataJsonString
@@ -122,7 +114,7 @@ export class AttendancePageComponent implements OnInit {
     this.currentUserEmployee = decryptedUserData;
   }
 
-  onSelectEmployee(employee: any) {
+  onSelectEmployee(employee: any): void {
     this.selectedEmployee = CloneUtil.clone(employee);
     this.getAttendance(
       this.selectedEmployee.id,
@@ -134,7 +126,7 @@ export class AttendancePageComponent implements OnInit {
   // ng zorro table is designed to have fixed width and height
   // if we want it to become scrollable
   // but we needed the height to change according to browser window resize
-  calculateTableHeight() {
+  calculateTableHeight(): void {
     let tableParentElement = document.getElementById('table-parent');
     this.tableHeight =
       tableParentElement == null
@@ -143,7 +135,7 @@ export class AttendancePageComponent implements OnInit {
   }
 
   //TODO: implement real get attendance api
-  getAttendance(employee_id: number, month: number, year: number) {
+  getAttendance(employee_id: number, month: number, year: number): void {
     this.isAttendanceTableLoading = true;
     this.attendanceApiService
       .getAttendance(employee_id, month, year)
@@ -168,31 +160,31 @@ export class AttendancePageComponent implements OnInit {
       let checkoutTime = new Date(data.date);
       checkoutTime.setHours(17);
       this.editAttendance = {
-        employee: this.selectedEmployee,
+        emp: this.selectedEmployee,
         date: data.date,
-        checkin_time: checkinTime.getTime(),
-        checkout_time: checkoutTime.getTime(),
+        check_in_time: checkinTime.getTime(),
+        check_out_time: checkoutTime.getTime(),
       };
     }
   }
 
-  stopEdit() {
+  stopEdit(): void {
     this.editAttendance = null;
     this.editDate = null;
     return;
   }
 
   //TODO: implement real create/update attendance api
-  saveEdit(data: any) {
+  saveEdit(data: any): void {
     this.isUpdateLoading = true;
     //TODO: Create/Update attendance API
     if (this.editAttendance.id == null) {
       this.attendanceApiService
         .createAttendance({
           date: data.date,
-          employee_id: this.selectedEmployee.id,
-          checkin_time: this.editAttendance.checkin_time,
-          checkout_time: this.editAttendance.checkout_time,
+          emp: this.selectedEmployee,
+          check_in_time: this.editAttendance.check_in_time,
+          check_out_time: this.editAttendance.check_out_time,
         })
         .subscribe((response: Response) => {
           if (response.success) {
@@ -223,7 +215,7 @@ export class AttendancePageComponent implements OnInit {
   }
 
   //TODO: implement real delete attendance api
-  deleteAttendance(data: any) {
+  deleteAttendance(data: any): void {
     this.isDeleteAttendanceLoading = true;
     this.editDate = data.date;
     this.attendanceApiService
@@ -231,7 +223,7 @@ export class AttendancePageComponent implements OnInit {
       .subscribe((response: Response) => {
         if (response.success) {
           delete this.attendanceResultList.filter(
-            (att) => att.date == data.date
+            (att) => DateUtil.compareDates(att.date, data.date) == 0
           )[0].attendance;
           this.message.create('success', response.message);
         } else {
@@ -242,12 +234,16 @@ export class AttendancePageComponent implements OnInit {
       });
   }
 
-  onMonthChange(event: any) {
+  onMonthChange(event: any): void {
     this.getAttendance(this.selectedEmployee.id, event.month, event.year);
   }
 
-  // working_hour = checkout_time - checkin_time - 1hr(lunch break)
-  calculateWorkingHour(checkinTime: number, checkoutTime: number, leave?: any) {
+  // working_hour = check_out_time - check_in_time - 1hr(lunch break)
+  calculateWorkingHour(
+    checkinTime: number,
+    checkoutTime: number,
+    leave?: any
+  ): string {
     let differenceTimeAsDate = new Date(
       checkoutTime - checkinTime - (leave == null ? 3600000 : 0)
     );
@@ -262,7 +258,7 @@ export class AttendancePageComponent implements OnInit {
     );
   }
 
-  getLeaveTooltopTitle(leave: any) {
+  getLeaveTooltopTitle(leave: any): string {
     return (
       leave.leave_type.name +
       ' ' +
@@ -270,28 +266,28 @@ export class AttendancePageComponent implements OnInit {
     );
   }
 
-  getOvertimeTooltopTitle(overtime: any) {
+  getOvertimeTooltopTitle(overtime: any): string {
     return (
       'Overtime (' +
-      DateUtil.show12TimeFromTimestamp(overtime.checkin_time) +
+      DateUtil.showTimeIn12(overtime.check_in_time) +
       ' - ' +
-      DateUtil.show12TimeFromTimestamp(overtime.checkout_time) +
+      DateUtil.showTimeIn12(overtime.check_out_time) +
       ')'
     );
   }
 
-  onCreateHolidayStart(data: AttendanceResult) {
+  onCreateHolidayStart(data: AttendanceResult): void {
     this.editHoliday = {
       name: '',
       date: data.date,
     };
   }
 
-  onCreateHolidayCancel() {
+  onCreateHolidayCancel(): void {
     this.editHoliday = null;
   }
 
-  onCreateHolidaySave() {
+  onCreateHolidaySave(): void {
     if (!(this.editHoliday != null && this.editHoliday.name != '')) {
       this.message.create('error', 'Holiday name cannot be blank!');
       return;
@@ -304,7 +300,7 @@ export class AttendancePageComponent implements OnInit {
       .subscribe((response: Response) => {
         if (response.success) {
           this.attendanceResultList.filter(
-            (att) => att.date == response.result.date
+            (att) => DateUtil.compareDates(att.date, response.result.date) == 0
           )[0].holiday = response.result;
           this.message.create('success', response.message);
           this.editHoliday = null;
@@ -315,7 +311,7 @@ export class AttendancePageComponent implements OnInit {
       });
   }
 
-  onDeleteHoliday(attendanceResult: AttendanceResult) {
+  onDeleteHoliday(attendanceResult: AttendanceResult): void {
     this.isCreateHolidayLoading = true;
 
     this.holidayApiService
@@ -323,7 +319,7 @@ export class AttendancePageComponent implements OnInit {
       .subscribe((response: Response) => {
         if (response.success) {
           this.attendanceResultList.find(
-            (att) => att.date == attendanceResult.date
+            (att) => DateUtil.compareDates(att.date, attendanceResult.date) == 0
           ).holiday = null;
           this.message.create('success', response.message);
           this.editHoliday = null;
@@ -334,12 +330,12 @@ export class AttendancePageComponent implements OnInit {
       });
   }
 
-  onDateColumnMouseEnter(data: AttendanceResult) {
+  onDateColumnMouseEnter(data: AttendanceResult): void {
     this.isHolidayCreateDeleteVisible = true;
     this.hoverDate = data.date;
   }
 
-  onDateColumnMouseLeave() {
+  onDateColumnMouseLeave(): void {
     this.isHolidayCreateDeleteVisible = false;
     this.hoverDate = null;
   }

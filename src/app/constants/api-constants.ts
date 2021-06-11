@@ -1,3 +1,4 @@
 export class ApiConstants {
-  static BASE_URL: string = 'http://178.128.109.10/api/';
+  static HOST_URL: string = 'http://localhost:8000/';
+  static BASE_URL: string = ApiConstants.HOST_URL + 'api/';
 }

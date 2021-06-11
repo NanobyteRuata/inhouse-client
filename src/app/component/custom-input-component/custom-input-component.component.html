@@ -1,10 +1,22 @@
 <span style="display: flex; flex-direction: column">
   <span class="label">{{ label }}</span>
-  <input
-    nz-input
-    [disabled]="disabled"
-    [placeholder]="placeholder"
-    [(ngModel)]="value"
-    (ngModelChange)="valueChange.emit(value)"
-  />
+  <nz-input-group [nzSuffix]="suffixTemplate">
+    <input
+      nz-input
+      [disabled]="disabled || isLoading"
+      [placeholder]="placeholder"
+      [(ngModel)]="value"
+      (ngModelChange)="valueChange.emit(value)"
+      [type]="showPassword ? 'text' : type"
+    />
+  </nz-input-group>
+  <ng-template #suffixTemplate>
+    <i
+      *ngIf="type == 'password' && !isLoading"
+      nz-icon
+      [nzType]="showPassword ? 'eye-invisible' : 'eye'"
+      (click)="showPassword = !showPassword"
+    ></i>
+    <i *ngIf="isLoading" nz-icon [nzType]="'loading'"></i>
+  </ng-template>
 </span>

@@ -17,6 +17,7 @@ export class EncryptionUtil {
 
   static decryptData(data: string) {
     try {
+      if (data == null) return null;
       const bytes = CryptoJS.AES.decrypt(data, ENCRYPTION_SECRET_KEY);
       if (bytes.toString()) {
         return JSON.parse(JSON.parse(bytes.toString(CryptoJS.enc.Utf8)));

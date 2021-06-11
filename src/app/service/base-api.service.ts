@@ -7,24 +7,21 @@ import { EncryptionUtil } from '../util/encryption-util';
   providedIn: 'root',
 })
 export class BaseApiService {
-  authToken: string | null;
-
   get headers() {
+    let encryptedAuthToken = localStorage.getItem('auth_token');
+    let authToken = EncryptionUtil.decryptData(encryptedAuthToken);
     let basicHeaders: any = {
       'Content-Type': 'application/json',
     };
-    if (this.authToken) {
-      basicHeaders['Authorization'] = 'Token ' + this.authToken;
+    if (authToken) {
+      basicHeaders['Authorization'] = 'Token ' + authToken;
       return basicHeaders;
     } else {
       return basicHeaders;
     }
   }
 
-  constructor(private http: HttpClient) {
-    let encryptedAuthToken = localStorage.getItem('auth_token');
-    this.authToken = EncryptionUtil.decryptData(encryptedAuthToken);
-  }
+  constructor(private http: HttpClient) {}
 
   public get(url: string) {
     return this.http.get(ApiConstants.BASE_URL + url, {

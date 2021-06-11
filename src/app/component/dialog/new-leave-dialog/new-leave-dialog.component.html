@@ -1,0 +1,133 @@
+<nz-modal
+  #newLeaveModal
+  [(nzVisible)]="isNewLeaveModalVisible"
+  nzTitle="New Leave"
+  (nzOnCancel)="onNewLeaveCancel()"
+  (nzOnOk)="currentUserEmployee != null ? onNewLeaveSubmit() : null"
+  [nzOkLoading]="isNewLeaveModalLoading"
+  [nzOkDisabled]="isNewLeaveSubmitDisabled"
+  [nzOkText]="
+    newLeaveEmployeeValue == null ||
+    (newLeaveEmployeeValue != null &&
+      currentUserEmployee != null &&
+      newLeaveEmployeeValue.id == currentUserEmployee.id)
+      ? 'Request'
+      : 'Create'
+  "
+>
+  <ng-container *nzModalContent>
+    <app-custom-select-component
+      label="Employee"
+      [options]="newLeaveEmployeeOptions"
+      displayProperty="name"
+      [(value)]="newLeaveEmployeeValue"
+      (valueChange)="onNewLeaveEmployeeSelect($event)"
+      [isLoading]="isNewLeaveEmployeeSelectLoading"
+    ></app-custom-select-component>
+    <div class="spacer"></div>
+    <app-custom-select-component
+      label="Leave Type"
+      placeholder="Select leave type"
+      [options]="newLeaveLeaveTypeOptions"
+      [(value)]="newLeaveLeaveTypeValue"
+      [disabled]="newLeaveEmployeeValue == null"
+      displayProperty="name"
+      [isLoading]="isNewLeaveLeaveTypeSelectLoading"
+    ></app-custom-select-component>
+    <div class="spacer"></div>
+    <div class="flex-row" style="align-items: flex-end">
+      <app-custom-date-picker-component
+        style="flex: 1"
+        label="From date"
+        [(value)]="newLeaveFromDateValue"
+      ></app-custom-date-picker-component>
+
+      <nz-radio-group [(ngModel)]="newLeaveFromTypeValue" nzName="radiogroup">
+        <div
+          class="flex-row"
+          style="align-items: center; height: 30px; margin-left: 12px"
+        >
+          <label
+            nz-radio
+            [nzValue]="0"
+            [nzDisabled]="newLeaveFromDateValue == null"
+            >Full</label
+          >
+          <label
+            nz-radio
+            [nzValue]="1"
+            [nzDisabled]="newLeaveFromDateValue == null"
+            >AM</label
+          >
+          <label
+            nz-radio
+            [nzValue]="2"
+            [nzDisabled]="newLeaveFromDateValue == null"
+            >PM</label
+          >
+        </div>
+      </nz-radio-group>
+    </div>
+    <div class="spacer"></div>
+    <div class="flex-row" style="align-items: flex-end">
+      <app-custom-date-picker-component
+        style="flex: 1"
+        label="To date (Optional)"
+        [disabled]="newLeaveFromDateValue == null"
+        [(value)]="newLeaveToDateValue"
+      ></app-custom-date-picker-component>
+      <nz-radio-group [(ngModel)]="newLeaveToTypeValue" nzName="radiogroup">
+        <div
+          class="flex-row"
+          style="align-items: center; height: 30px; margin-left: 12px"
+        >
+          <label
+            nz-radio
+            [nzValue]="0"
+            [nzDisabled]="
+              newLeaveFromDateValue == null || newLeaveToDateValue == null
+            "
+            >Full</label
+          >
+          <label
+            nz-radio
+            [nzValue]="1"
+            [nzDisabled]="
+              newLeaveFromDateValue == null || newLeaveToDateValue == null
+            "
+            >AM</label
+          >
+          <label
+            nz-radio
+            [nzValue]="2"
+            [nzDisabled]="
+              newLeaveFromDateValue == null || newLeaveToDateValue == null
+            "
+            >PM</label
+          >
+        </div>
+      </nz-radio-group>
+    </div>
+    <div class="spacer"></div>
+    <app-custom-select-component
+      label="Status"
+      [options]="newLeaveStatusOptions"
+      [(value)]="newLeaveStatusValue"
+      [disabled]="
+        newLeaveEmployeeValue == null ||
+        (newLeaveEmployeeValue != null &&
+          newLeaveEmployeeValue.id == currentUserEmployee.id)
+      "
+      displayProperty="text"
+    ></app-custom-select-component>
+    <div class="spacer"></div>
+    <app-custom-select-component
+      label="Report to"
+      [options]="newLeaveReportToOptions"
+      [disabled]="newLeaveEmployeeValue == null"
+      [isLoading]="isNewLeaveReportToSelectLoading"
+      [(value)]="newLeaveReportToValue"
+      displayProperty="name"
+    ></app-custom-select-component>
+  </ng-container>
+</nz-modal>

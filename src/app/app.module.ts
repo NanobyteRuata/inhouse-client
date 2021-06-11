@@ -26,19 +26,22 @@ import { NzModalModule } from 'ng-zorro-antd/modal';
 import { NzTableModule } from 'ng-zorro-antd/table';
 import { NzCheckboxModule } from 'ng-zorro-antd/checkbox';
 import { NzTimePickerModule } from 'ng-zorro-antd/time-picker';
+import { NzStepsModule } from 'ng-zorro-antd/steps';
+import { NzTabsModule } from 'ng-zorro-antd/tabs';
+import { NzUploadModule } from 'ng-zorro-antd/upload';
+import { NzRadioModule } from 'ng-zorro-antd/radio';
+import { NzInputNumberModule } from 'ng-zorro-antd/input-number';
 
 import { NzMessageService } from 'ng-zorro-antd/message';
 
 import { LoginPageComponent } from './page/login-page/login-page.component';
 import { ForgotPasswordPageComponent } from './page/forgot-password-page/forgot-password-page.component';
-import { ResetPasswordPageComponent } from './page/reset-password-page/reset-password-page.component';
 import { MainPageComponent } from './page/main-page/main-page.component';
 import { EmployeePageComponent } from './page/employee-page/employee-page.component';
 import { AttendancePageComponent } from './page/attendance-page/attendance-page.component';
 import { DashboardPageComponent } from './page/dashboard-page/dashboard-page.component';
 import { LeavePageComponent } from './page/leave-page/leave-page.component';
 import { OvertimePageComponent } from './page/overtime-page/overtime-page.component';
-import { CheckinCheckoutRequestPageComponent } from './page/checkin-checkout-request-page/checkin-checkout-request-page.component';
 import { NotFoundPageComponent } from './page/not-found-page/not-found-page.component';
 
 import {
@@ -73,6 +76,8 @@ import { CustomSelectComponentComponent } from './component/custom-select-compon
 import { CustomDatePickerComponentComponent } from './component/custom-date-picker-component/custom-date-picker-component.component';
 import { EmployeeCardComponentComponent } from './component/employee-card-component/employee-card-component.component';
 import { MonthYearSelectComponentComponent } from './component/month-year-select-component/month-year-select-component.component';
+import { LeaveTypePageComponent } from './page/leave-type-page/leave-type-page.component';
+import { NewLeaveDialogComponent } from './component/dialog/new-leave-dialog/new-leave-dialog.component';
 
 const icons: IconDefinition[] = [
   EyeInvisibleOutline,
@@ -107,14 +112,12 @@ registerLocaleData(en);
     AppComponent,
     LoginPageComponent,
     ForgotPasswordPageComponent,
-    ResetPasswordPageComponent,
     MainPageComponent,
     EmployeePageComponent,
     AttendancePageComponent,
     DashboardPageComponent,
     LeavePageComponent,
     OvertimePageComponent,
-    CheckinCheckoutRequestPageComponent,
     NotFoundPageComponent,
     AttendanceDetailPageComponent,
     EmployeeSearchComponentComponent,
@@ -123,6 +126,8 @@ registerLocaleData(en);
     CustomDatePickerComponentComponent,
     EmployeeCardComponentComponent,
     MonthYearSelectComponentComponent,
+    LeaveTypePageComponent,
+    NewLeaveDialogComponent,
   ],
   imports: [
     BrowserModule,
@@ -145,6 +150,11 @@ registerLocaleData(en);
     NzTableModule,
     NzCheckboxModule,
     NzTimePickerModule,
+    NzStepsModule,
+    NzTabsModule,
+    NzUploadModule,
+    NzRadioModule,
+    NzInputNumberModule,
   ],
   providers: [{ provide: NZ_I18N, useValue: en_US }, NzMessageService],
   bootstrap: [AppComponent],

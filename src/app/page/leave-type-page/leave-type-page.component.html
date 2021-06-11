@@ -1,0 +1,241 @@
+<div class="body-container" (window:resize)="calculateTableHeight()">
+  <nz-breadcrumb>
+    <nz-breadcrumb-item>
+      <a routerLink="/leave">Leave</a>
+    </nz-breadcrumb-item>
+    <nz-breadcrumb-item> Leave Type </nz-breadcrumb-item>
+  </nz-breadcrumb>
+  <div class="leave-type-body">
+    <app-month-year-select-component
+      #monthYearSelectComponent
+      (onChange)="onYearChange($event)"
+      type="year"
+    ></app-month-year-select-component>
+    <nz-table
+      #leaveTypeTable
+      size="small"
+      [nzBordered]="true"
+      [nzLoading]="isLeaveTypeTableLoading"
+      style="flex: 1"
+      [nzData]="leaveTypeList"
+      nzFrontPagination="false"
+      [nzScroll]="{ x: '100%', y: tableHeight }"
+      (nzCurrentPageDataChange)="
+        onLeaveTypeFilterChange($event, leaveTypeTable)
+      "
+      [nzFooter]="'Total: ' + leaveTypeDataLength"
+    >
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Leave Days</th>
+          <th>Valid At</th>
+          <th style="text-align: right" *ngIf="isCurrentYear">Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let data of leaveTypeTable.data">
+          <td>
+            <span
+              *ngIf="!(editingLeaveType && editingLeaveType.id == data.id)"
+              >{{ data.name }}</span
+            >
+            <input
+              *ngIf="editingLeaveType && editingLeaveType.id == data.id"
+              [disabled]="isDeleteLoading"
+              placeholder="Leave Type Name"
+              nz-input
+              type="text"
+              name=""
+              id=""
+              [(ngModel)]="editingLeaveType.name"
+            />
+          </td>
+          <td>
+            <span *ngIf="!(editingLeaveType && editingLeaveType.id == data.id)"
+              >{{ data.leave_days }} days</span
+            >
+
+            <nz-input-number
+              *ngIf="editingLeaveType && editingLeaveType.id == data.id"
+              [nzDisabled]="isDeleteLoading"
+              [(ngModel)]="editingLeaveType.leave_days"
+              [nzMin]="0"
+              [nzStep]="1"
+            ></nz-input-number>
+          </td>
+          <td>
+            <span *ngIf="!(editingLeaveType && editingLeaveType.id == data.id)"
+              >{{ data.valid_at }} months</span
+            >
+            <nz-input-number
+              *ngIf="editingLeaveType && editingLeaveType.id == data.id"
+              [nzDisabled]="isDeleteLoading"
+              [(ngModel)]="editingLeaveType.valid_at"
+              [nzMin]="0"
+              [nzStep]="1"
+            ></nz-input-number>
+          </td>
+          <td style="text-align: right" *ngIf="isCurrentYear">
+            <a
+              *ngIf="editingLeaveType && editingLeaveType.id == data.id"
+              nz-button
+              nzType="link"
+              (click)="onCancelClick()"
+              ><i
+                nz-icon
+                nz-tooltip
+                [nzTooltipTitle]="'Cancel'"
+                [ngStyle]="{
+                  color: 'gray',
+                  'font-size': '12pt'
+                }"
+                nzType="close"
+              ></i
+            ></a>
+            <a
+              *ngIf="editingLeaveType && editingLeaveType.id == data.id"
+              nz-button
+              nzType="link"
+              (click)="onSaveClick()"
+              [nzLoading]="
+                editingLeaveType.id == data.id && isLeaveTypeSaveLoading
+              "
+              ><i
+                nz-icon
+                nz-tooltip
+                [nzTooltipTitle]="'Save'"
+                [ngStyle]="{
+                  color: '#379947',
+                  'font-size': '12pt'
+                }"
+                nzType="check"
+              ></i
+            ></a>
+            <a
+              *ngIf="!(editingLeaveType && editingLeaveType.id == data.id)"
+              nz-button
+              nzType="link"
+              (click)="onEditClick(data)"
+              ><i
+                nz-icon
+                nz-tooltip
+                [nzTooltipTitle]="'Edit'"
+                [ngStyle]="{
+                  color: '#2680eb',
+                  'font-size': '12pt'
+                }"
+                nzType="edit"
+              ></i
+            ></a>
+
+            <a
+              *ngIf="!(editingLeaveType && editingLeaveType.id == data.id)"
+              nz-button
+              [nzLoading]="isDeleteLoading && editingLeaveType.id == data.id"
+              nzType="link"
+              nz-popconfirm
+              nzPopconfirmTitle="Are you sure you want to delete this leave data?"
+              nzPopconfirmPlacement="top"
+              (nzOnConfirm)="onDeleteClick(data)"
+              ><i
+                nz-icon
+                nz-tooltip
+                [nzTooltipTitle]="'Delete'"
+                [ngStyle]="{
+                  color: '#e34850',
+                  'font-size': '12pt'
+                }"
+                nzType="delete"
+              ></i
+            ></a>
+          </td>
+        </tr>
+        <tr *ngIf="isCurrentYear">
+          <td>
+            <input
+              *ngIf="editingLeaveType && editingLeaveType.id == null"
+              placeholder="Leave Type Name"
+              nz-input
+              type="text"
+              name=""
+              id=""
+              [(ngModel)]="editingLeaveType.name"
+            />
+          </td>
+          <td>
+            <nz-input-number
+              *ngIf="editingLeaveType && editingLeaveType.id == null"
+              [(ngModel)]="editingLeaveType.leave_days"
+              [nzMin]="0"
+              [nzStep]="1"
+              >days</nz-input-number
+            >
+          </td>
+          <td>
+            <nz-input-number
+              *ngIf="editingLeaveType && editingLeaveType.id == null"
+              [(ngModel)]="editingLeaveType.valid_at"
+              [nzMin]="0"
+              [nzStep]="1"
+              >months</nz-input-number
+            >
+          </td>
+          <td style="text-align: right">
+            <a
+              *ngIf="editingLeaveType && editingLeaveType.id == null"
+              nz-button
+              nzType="link"
+              (click)="onCancelClick()"
+              ><i
+                nz-icon
+                nz-tooltip
+                [nzTooltipTitle]="'Cancel'"
+                [ngStyle]="{
+                  color: 'gray',
+                  'font-size': '12pt'
+                }"
+                nzType="close"
+              ></i
+            ></a>
+            <a
+              *ngIf="editingLeaveType && editingLeaveType.id == null"
+              nz-button
+              nzType="link"
+              (click)="onSaveClick()"
+              [nzLoading]="
+                editingLeaveType.id == null && isLeaveTypeSaveLoading
+              "
+              ><i
+                nz-icon
+                nz-tooltip
+                [nzTooltipTitle]="'Save'"
+                [ngStyle]="{
+                  color: '#379947',
+                  'font-size': '12pt'
+                }"
+                nzType="check"
+              ></i
+            ></a>
+            <a
+              *ngIf="!(editingLeaveType && editingLeaveType.id == null)"
+              nz-button
+              nzType="link"
+              (click)="onNewClick()"
+              ><i
+                nz-icon
+                nz-tooltip
+                [nzTooltipTitle]="'New'"
+                [ngStyle]="{
+                  color: '#379947',
+                  'font-size': '12pt'
+                }"
+                nzType="plus"
+              ></i
+            ></a>
+          </td>
+        </tr>
+      </tbody>
+    </nz-table>
+  </div>
+</div>

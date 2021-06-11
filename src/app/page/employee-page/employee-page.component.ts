@@ -12,6 +12,8 @@ import { Department } from 'src/app/model/department-model';
 import { Employee } from 'src/app/model/employee-model';
 import { Response } from 'src/app/model/response-model';
 import { formatDate } from '@angular/common';
+import { NzUploadChangeParam, NzUploadFile } from 'ng-zorro-antd/upload';
+import { ApiConstants } from 'src/app/constants/api-constants';
 
 @Component({
   selector: 'app-employee-page',
@@ -19,7 +21,10 @@ import { formatDate } from '@angular/common';
   styleUrls: ['./employee-page.component.scss'],
 })
 export class EmployeePageComponent implements OnInit {
+  ApiConstants = ApiConstants;
+
   navigatedEmployeeId: number;
+  authToken: string;
 
   @ViewChild('employeeSearchComponent1')
   employeeSearchComponent1!: EmployeeSearchComponentComponent;
@@ -34,6 +39,8 @@ export class EmployeePageComponent implements OnInit {
     { id: 2, name: 'Employee' },
   ];
   departments: Department[] = [];
+
+  isImageUploadLoading: boolean = false;
 
   isLoading: boolean = false;
   currentUserEmployee: Employee = null;
@@ -108,6 +115,11 @@ export class EmployeePageComponent implements OnInit {
       currentUserDataJsonString
     );
     this.currentUserEmployee = decryptedUserData;
+    let currentAuthTokenJsonString = localStorage.getItem('auth_token');
+    let decryptedAuthToken = EncryptionUtil.decryptData(
+      currentAuthTokenJsonString
+    );
+    this.authToken = decryptedAuthToken;
   }
 
   getDepartments() {
@@ -393,6 +405,50 @@ export class EmployeePageComponent implements OnInit {
       });
   }
 
+  getBase64(file: File): Promise<string | ArrayBuffer | null> {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = () => resolve(reader.result);
+      reader.onerror = (error) => reject(error);
+    });
+  }
+
+  handleChange(info: NzUploadChangeParam): void {
+    if (info.type == 'start') this.handleUpload(info.file);
+  }
+
+  beforeUpload = (file: NzUploadFile): boolean => {
+    this.handleUpload(file);
+    return false;
+  };
+
+  handleUpload(image: any): void {
+    const formData = new FormData();
+    formData.append('image', image);
+    this.isImageUploadLoading = true;
+    this.employeeApiService
+      .uploadImage(this.selectedEmployee.id, formData)
+      .subscribe((response: Response) => {
+        if (response.success) {
+          this.selectedEmployee = CloneUtil.clone(response.result);
+          if (this.currentUserEmployee.id == this.selectedEmployee.id) {
+            this.currentUserEmployee = response.result;
+            localStorage.setItem(
+              'current_employee',
+              EncryptionUtil.encryptData(
+                JSON.stringify(this.currentUserEmployee)
+              )
+            );
+          }
+          this.message.create('success', response.message);
+        } else {
+          this.message.create('error', response.message);
+        }
+        this.isImageUploadLoading = false;
+      });
+  }
+
   onSaveEmployee() {
     let invalidField: string | null = null;
     let invalidType: string | null = null;
@@ -502,5 +558,13 @@ export class EmployeePageComponent implements OnInit {
       );
     }
     this.message.create('success', response.message);
+  }
+
+  getImageUrl(url: string) {
+    if (url.startsWith('http') || url.includes(ApiConstants.HOST_URL)) {
+      return url;
+    } else {
+      return ApiConstants.HOST_URL + url;
+    }
   }
 }
