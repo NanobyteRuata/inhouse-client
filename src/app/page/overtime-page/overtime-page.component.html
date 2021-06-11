@@ -7,8 +7,140 @@
       #employeeSearchComponent
       (onSelectEmployee)="onSelectEmployee($event)"
     ></app-employee-search-component>
-    <div>
-      selected {{ selectedEmployee ? selectedEmployee.name : "no one" }}
+    <div class="overtime-content">
+      <app-month-year-select-component
+        #monthYearSelectComponent
+        (onChange)="onYearChange($event)"
+        type="year"
+      ></app-month-year-select-component>
+      <nz-table
+        #leaveTable
+        size="small"
+        [nzBordered]="true"
+        [nzLoading]="isOvertimeTableLoading"
+        style="flex: 1"
+        [nzData]="overtimeList"
+        nzFrontPagination="false"
+        [nzScroll]="{ x: '100%', y: tableHeight }"
+        [nzFooter]="'Total: ' + overtimeDataLength"
+      >
+        <thead>
+          <tr>
+            <th
+              colspan="2"
+              nzSortOrder="descend"
+              [nzSortFn]="dateSortFunction"
+              [nzFilters]="dateFilterList"
+              [nzFilterFn]="dateFilterFunction"
+            >
+              Date
+            </th>
+            <th colspan="5">Time Information</th>
+            <th
+              colspan="3"
+              [nzFilters]="reportToFilterList"
+              [nzFilterFn]="reportToFilterFunction"
+            >
+              Report to
+            </th>
+            <th
+              colspan="2"
+              [nzFilters]="statusFilterList"
+              [nzFilterFn]="statusFilterFunction"
+            >
+              Status
+            </th>
+            <th
+              colspan="2"
+              nzSortOrder="descend"
+              [nzSortFn]="dateSortFunction"
+              [nzFilters]="dateFilterList"
+              [nzFilterFn]="requestedDateFilterFunction"
+            >
+              Requested Date
+            </th>
+            <th colspan="1" style="text-align: right"></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let data of leaveTable.data">
+            <td colspan="2">
+              <span>
+                {{ showDateAndMonth(data.date) }}
+              </span>
+            </td>
+            <td colspan="5">
+              <div style="display: flex; flex-direction: column">
+                <span>{{
+                  showTimeIn12(data.request_start_datetime) +
+                    " - " +
+                    showTimeIn12(data.request_end_datetime)
+                }}</span>
+                <span>{{
+                  showTimeIn12(data.actual_start_datetime) +
+                    " - " +
+                    showTimeIn12(data.actual_end_datetime)
+                }}</span>
+              </div>
+            </td>
+            <td colspan="3">
+              <span>
+                {{ data.request_emp.name }}
+              </span>
+            </td>
+            <td
+              colspan="2"
+              [ngStyle]="{
+                color:
+                  data.status == 0
+                    ? '#2680eb'
+                    : data.status == 1
+                    ? 'green'
+                    : data.status == 2
+                    ? 'red'
+                    : 'grey'
+              }"
+            >
+              <span>
+                {{
+                  data.status == 0
+                    ? "Pending"
+                    : data.status == 1
+                    ? "Approved"
+                    : data.status == 2
+                    ? "Rejected"
+                    : "Cancelled"
+                }}
+              </span>
+            </td>
+            <td colspan="2">
+              <span>
+                {{ showDateAndMonth(data.created_at) }}
+              </span>
+            </td>
+            <td colspan="1" style="text-align: right">
+              <a
+                nz-button
+                nzType="link"
+                nz-popconfirm
+                nzPopconfirmTitle="Are you sure you want to delete this overtime data?"
+                nzPopconfirmPlacement="top"
+                (nzOnConfirm)="onOvertimeDeleteClick(data)"
+                ><i
+                  nz-icon
+                  nz-tooltip
+                  [nzTooltipTitle]="'Delete'"
+                  [ngStyle]="{
+                    color: '#e34850',
+                    'font-size': '12pt'
+                  }"
+                  nzType="delete"
+                ></i
+              ></a>
+            </td>
+          </tr>
+        </tbody>
+      </nz-table>
     </div>
   </div>
 </div>

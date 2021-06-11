@@ -24,18 +24,26 @@
         <i nz-icon nzType="check"></i>
         <span>Attendance</span>
       </li>
+
       <li
-        nz-submenu
-        nzIcon="container"
+        nz-menu-item
+        nz-tooltip
         nzTooltipPlacement="right"
-        nzTooltipTitle="Attendance"
+        nzTooltipTitle="Overtime"
+        [nzMatchRouter]="true"
+        routerLink="/overtime"
       >
-        <ul>
-          <li nz-menu-item [nzMatchRouter]="true" routerLink="/overtime">
-            Overtime
-          </li>
-          <li nz-menu-item [nzMatchRouter]="true" routerLink="/leave">Leave</li>
-        </ul>
+        <i nz-icon nzType="clock-circle"></i>
+      </li>
+      <li
+        nz-menu-item
+        nz-tooltip
+        nzTooltipPlacement="right"
+        nzTooltipTitle="Leave"
+        [nzMatchRouter]="true"
+        routerLink="/leave"
+      >
+        <i nz-icon nzType="calendar"></i>
       </li>
       <li
         nz-menu-item
