@@ -15,17 +15,6 @@ export class EmployeeApiService {
   ) {}
 
   getEmployees(keyword?: string, departmentId?: number) {
-    console.log(
-      `employee?${
-        keyword != null && keyword != '' ? 'keyword=' + keyword : ''
-      }${
-        departmentId
-          ? (keyword != null && keyword != '' ? '&' : '') +
-            'department_id=' +
-            departmentId
-          : ''
-      }`
-    );
     return this.baseApiService.get(
       `employee?${
         keyword != null && keyword != '' ? 'keyword=' + keyword : ''
