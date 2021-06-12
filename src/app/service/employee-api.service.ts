@@ -19,7 +19,7 @@ export class EmployeeApiService {
       `employee?${
         keyword != null && keyword != '' ? 'keyword=' + keyword : ''
       }${
-        departmentId
+        departmentId != null && departmentId > -1
           ? (keyword != null && keyword != '' ? '&' : '') +
             'department_id=' +
             departmentId
