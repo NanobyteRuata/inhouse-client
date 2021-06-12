@@ -239,6 +239,12 @@ export class LeavePageComponent implements OnInit {
     );
   }
 
+  onNewLeaveCreated(leave: Leave) {
+    if (this.selectedEmployee.id == leave.emp.id) {
+      this.leaveList.push(leave);
+    }
+  }
+
   isLeaveDeleteLoading = false;
   leaveDeleteLoadingId;
   onLeaveDeleteClick(leave: Leave) {

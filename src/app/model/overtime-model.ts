@@ -7,7 +7,8 @@ export class Overtime {
   request_end_datetime: number;
   actual_start_datetime: number;
   actual_end_datetime: number;
-  emp = Employee;
-  request_emp = Employee;
+  status: number;
+  emp: Employee;
+  request_emp: Employee;
   created_at: number;
 }

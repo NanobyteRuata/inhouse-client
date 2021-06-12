@@ -16,6 +16,10 @@ export class OvertimeApiService {
     return this._baseApiService.post(`overtime`, overtime);
   }
 
+  requestOvertime(overtime: Overtime) {
+    return this._baseApiService.post(`overtime/request`, overtime);
+  }
+
   updateOvertime(overtime: Overtime) {
     return this._baseApiService.put(`overtime/${overtime.id}`, overtime);
   }

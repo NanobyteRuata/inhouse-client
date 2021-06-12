@@ -119,6 +119,12 @@ export class OvertimePageComponent implements OnInit {
     );
   }
 
+  onNewOvertimeCreated(overtime: Overtime) {
+    if (overtime.emp.id == this.selectedEmployee.id) {
+      this.overtimeList.push(overtime);
+    }
+  }
+
   onYearChange(event) {
     this.getOvertime(this.selectedEmployee.id, event.year);
   }

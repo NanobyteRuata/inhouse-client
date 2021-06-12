@@ -11,6 +11,7 @@
     <app-new-leave-dialog
       [currentUserEmployee]="currentUserEmployee"
       [(isNewLeaveModalVisible)]="isNewLeaveModalVisible"
+      (onNewCreate)="onNewLeaveCreated($event)"
     ></app-new-leave-dialog>
   </div>
   <div class="leave-body">

@@ -2,8 +2,12 @@ import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { NzMessageService } from 'ng-zorro-antd/message';
 import { NzModalComponent } from 'ng-zorro-antd/modal';
 import { Employee } from 'src/app/model/employee-model';
+import { Leave } from 'src/app/model/leave-model';
 import { LeaveType } from 'src/app/model/leave-type-model';
 import { Response } from 'src/app/model/response-model';
+import { LeaveAllowanceApiService } from 'src/app/service/leave-allowance-api.service';
+import { LeaveApiService } from 'src/app/service/leave-api.service';
+import { SupervisorApiService } from 'src/app/service/supervisor-api.service';
 import { TestApi } from 'src/app/service/test-api';
 import { CloneUtil } from 'src/app/util/clone-util';
 
@@ -21,9 +25,12 @@ export class NewLeaveDialogComponent implements OnInit {
   get isNewLeaveModalVisible(): boolean {
     return this._isNewLeaveModalVisible;
   }
+  @Input() currentUserEmployee: Employee = null;
+
+  @Output() onNewCreate = new EventEmitter();
   @Output() isNewLeaveModalVisibleChange = new EventEmitter();
 
-  @Input() currentUserEmployee: Employee = null;
+  newLeave: Leave;
 
   isNewLeaveModalLoading: boolean = false;
   isNewLeaveEmployeeSelectLoading: boolean = false;
@@ -51,7 +58,12 @@ export class NewLeaveDialogComponent implements OnInit {
   newLeaveReportToValue: any = null;
   newLeaveReportToOptions: Employee[];
 
-  constructor(private message: NzMessageService) {}
+  constructor(
+    private message: NzMessageService,
+    private _supervisorApiService: SupervisorApiService,
+    private _leaveAllowanceApiService: LeaveAllowanceApiService,
+    private _leaveApiService: LeaveApiService
+  ) {}
 
   ngOnInit(): void {}
 
@@ -68,8 +80,9 @@ export class NewLeaveDialogComponent implements OnInit {
     this.newLeaveEmployeeValue = this.currentUserEmployee;
     this.onNewLeaveEmployeeSelect(this.currentUserEmployee);
 
-    TestApi.getSupervisors(1, this.currentUserEmployee.id).subscribe(
-      (response: Response) => {
+    this._supervisorApiService
+      .getSupervisors(1, this.currentUserEmployee.id)
+      .subscribe((response: Response) => {
         if (response.success) {
           this.newLeaveEmployeeOptions = [
             this.currentUserEmployee,
@@ -79,15 +92,7 @@ export class NewLeaveDialogComponent implements OnInit {
         } else {
           this.message.create('error', response.message);
         }
-      }
-    );
-
-    setTimeout(() => {
-      this.newLeaveLeaveTypeOptions = CloneUtil.clone(TestApi.leave_types);
-      this.newLeaveReportToOptions = CloneUtil.clone(TestApi.employees);
-
-      this.isNewLeaveReportToSelectLoading = false;
-    }, 1000);
+      });
   }
 
   onNewLeaveEmployeeSelect(value: Employee) {
@@ -101,23 +106,39 @@ export class NewLeaveDialogComponent implements OnInit {
 
     // Get report to
     this.isNewLeaveReportToSelectLoading = true;
-    TestApi.getSupervisors(0, value.id).subscribe((response: Response) => {
-      if (response.success) {
-        this.newLeaveReportToOptions = CloneUtil.clone(response.result);
-        if (this.newLeaveReportToOptions.length > 0)
-          this.newLeaveReportToValue = this.newLeaveReportToOptions[0];
-        this.isNewLeaveReportToSelectLoading = false;
-      } else {
-        this.message.create('error', response.message);
-      }
-    });
+    this._supervisorApiService
+      .getSupervisors(0, value.id)
+      .subscribe((response: Response) => {
+        if (response.success) {
+          this.newLeaveReportToOptions = CloneUtil.clone(response.result);
+          if (this.newLeaveReportToOptions.length > 0)
+            this.newLeaveReportToValue = this.newLeaveReportToOptions[0];
+          this.isNewLeaveReportToSelectLoading = false;
+        } else {
+          this.message.create('error', response.message);
+        }
+      });
 
     // Get available Leave Types
     this.isNewLeaveLeaveTypeSelectLoading = true;
-    setTimeout(() => {
-      this.newLeaveLeaveTypeOptions = TestApi.leave_types;
-      this.isNewLeaveLeaveTypeSelectLoading = false;
-    }, 1000);
+    this._leaveAllowanceApiService.getAll(value.id).subscribe(
+      (response: Response) => {
+        if (response.success) {
+          let tempLeaveTypeOptions: LeaveType[] = [];
+          for (let leaveAllowance of response.result) {
+            tempLeaveTypeOptions.push(leaveAllowance.leave_type);
+          }
+          this.newLeaveLeaveTypeOptions = tempLeaveTypeOptions;
+        } else {
+          this.message.create('error', response.message);
+        }
+        this.isNewLeaveLeaveTypeSelectLoading = false;
+      },
+      (err) => {
+        this.message.create('error', err.message);
+        this.isNewLeaveLeaveTypeSelectLoading = false;
+      }
+    );
   }
 
   get isNewLeaveSubmitDisabled() {
@@ -134,13 +155,30 @@ export class NewLeaveDialogComponent implements OnInit {
     this.isNewLeaveModalVisible = false;
     this.isNewLeaveModalVisibleChange.emit(false);
   }
+
   onNewLeaveSubmit() {
     this.isNewLeaveModalLoading = true;
-    setTimeout(() => {
-      this.message.create('success', 'Successfully created');
-      this.isNewLeaveModalLoading = false;
-      this.isNewLeaveModalVisible = false;
-      this.isNewLeaveModalVisibleChange.emit(false);
-    }, 1000);
+
+    let subscription =
+      this.newLeave.emp.id == this.currentUserEmployee.id
+        ? this._leaveApiService.requestLeave(this.newLeave)
+        : this._leaveApiService.saveLeave(this.newLeave);
+
+    subscription.subscribe(
+      (response: Response) => {
+        if (response.success) {
+          this.message.success(response.message);
+          this.onNewCreate.emit(response.result);
+          this.onNewLeaveCancel();
+        } else {
+          this.message.error(response.message);
+        }
+        this.isNewLeaveModalLoading = false;
+      },
+      (err) => {
+        this.message.error(err.message);
+        this.isNewLeaveModalLoading = false;
+      }
+    );
   }
 }

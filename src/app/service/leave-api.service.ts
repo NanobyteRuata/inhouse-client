@@ -16,6 +16,10 @@ export class LeaveApiService {
     return this._baseApiService.post(`leave`, leave);
   }
 
+  requestLeave(leave: Leave) {
+    return this._baseApiService.post(`leave/request`, leave);
+  }
+
   updateLeave(leave: Leave) {
     return this._baseApiService.post(`leave/${leave.id}`, leave);
   }

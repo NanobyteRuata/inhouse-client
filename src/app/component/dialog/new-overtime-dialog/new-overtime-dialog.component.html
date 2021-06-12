@@ -7,10 +7,10 @@
   [nzOkLoading]="isNewOvertimeModalLoading"
   [nzOkDisabled]="isNewOvertimeSubmitDisabled"
   [nzOkText]="
-    newOvertimeEmployeeValue == null ||
-    (newOvertimeEmployeeValue != null &&
+    newOvertime.emp == null ||
+    (newOvertime.emp != null &&
       currentUserEmployee != null &&
-      newOvertimeEmployeeValue.id == currentUserEmployee.id)
+      newOvertime.emp.id == currentUserEmployee.id)
       ? 'Request'
       : 'Create'
   "
@@ -20,7 +20,7 @@
       label="Employee"
       [options]="newOvertimeEmployeeOptions"
       displayProperty="name"
-      [(value)]="newOvertimeEmployeeValue"
+      [(value)]="newOvertime.emp"
       (valueChange)="onNewOvertimeEmployeeSelect($event)"
       [isLoading]="isNewOvertimeEmployeeSelectLoading"
     ></app-custom-select-component>
@@ -28,7 +28,7 @@
     <app-custom-date-picker-component
       style="flex: 1"
       label="Date"
-      [(value)]="newOvertimeDateValue"
+      [(value)]="newOvertime.date"
       (valueChanged)="onDateChose($event)"
     ></app-custom-date-picker-component>
     <div class="spacer"></div>
@@ -37,27 +37,27 @@
         style="flex: 1"
         label="Start Time"
         type="time"
-        [disabled]="newOvertimeDateValue == null"
-        [(value)]="newOvertimeStartTimeValue"
+        [disabled]="newOvertime.date == null"
+        [(value)]="newOvertime.request_start_datetime"
       ></app-custom-date-picker-component>
       <div style="width: 8px"></div>
       <app-custom-date-picker-component
         style="flex: 1"
         label="End Time"
         type="time"
-        [disabled]="newOvertimeDateValue == null"
-        [(value)]="newOvertimeEndTimeValue"
+        [disabled]="newOvertime.date == null"
+        [(value)]="newOvertime.request_end_datetime"
       ></app-custom-date-picker-component>
     </div>
     <div class="spacer"></div>
     <app-custom-select-component
       label="Status"
       [options]="newOvertimeStatusOptions"
-      [(value)]="newOvertimeStatusValue"
+      [(value)]="newOvertime.status"
       [disabled]="
-        newOvertimeEmployeeValue == null ||
-        (newOvertimeEmployeeValue != null &&
-          newOvertimeEmployeeValue.id == currentUserEmployee.id)
+        newOvertime.emp == null ||
+        (newOvertime.emp != null &&
+          newOvertime.emp.id == currentUserEmployee.id)
       "
       displayProperty="text"
     ></app-custom-select-component>
@@ -65,9 +65,9 @@
     <app-custom-select-component
       label="Report to"
       [options]="newOvertimeReportToOptions"
-      [disabled]="newOvertimeEmployeeValue == null"
+      [disabled]="newOvertime.emp == null"
       [isLoading]="isNewOvertimeReportToSelectLoading"
-      [(value)]="newOvertimeReportToValue"
+      [(value)]="newOvertime.request_emp"
       displayProperty="name"
     ></app-custom-select-component>
   </ng-container>

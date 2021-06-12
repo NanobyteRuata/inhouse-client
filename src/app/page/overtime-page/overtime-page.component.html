@@ -14,6 +14,7 @@
     <app-new-overtime-dialog
       [currentUserEmployee]="currentUserEmployee"
       [(isNewOvertimeModalVisible)]="isNewOvertimeModalVisible"
+      (onNewCreated)="onNewOvertimeCreated($event)"
     ></app-new-overtime-dialog>
   </div>
   <div class="overtime-body">
