@@ -3,15 +3,37 @@
     <nz-breadcrumb>
       <nz-breadcrumb-item> Dashboard </nz-breadcrumb-item>
     </nz-breadcrumb>
-    <button
-      nz-button
-      [nzLoading]="isCheckinLoading"
-      nzType="primary"
-      style="margin-left: auto"
-      (click)="checkin()"
-    >
-      Check in
-    </button>
+    <div style="margin-left: auto">
+      <button
+        *ngIf="
+          attendanceResult &&
+          !checkWeekend(attendanceResult.date) &&
+          attendanceResult.holiday == null &&
+          (((attendanceResult.overtime == null ||
+            attendanceResult.overtime.status != 1) &&
+            (attendanceResult.attendance == null ||
+              (attendanceResult.attendance != null &&
+                attendanceResult.attendance.check_out_time == null))) ||
+            (attendanceResult.overtime != null &&
+              attendanceResult.overtime.status == 1 &&
+              attendanceResult.overtime.actual_end_datetime == null))
+        "
+        nz-button
+        [nzLoading]="isCheckinButtonLoading || attendanceResult == null"
+        nzType="primary"
+        (click)="checkin()"
+      >
+        {{
+          this.attendanceResult.overtime == null
+            ? this.attendanceResult.attendance == null
+              ? 'Check In'
+              : 'Check Out'
+            : this.attendanceResult.overtime.actual_start_datetime == null
+            ? 'Checkin OT'
+            : 'Checkout OT'
+        }}
+      </button>
+    </div>
   </div>
   <div></div>
 </div>

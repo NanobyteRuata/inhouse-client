@@ -12,6 +12,14 @@ export class OvertimeApiService {
     return this._baseApiService.get(`overtime?emp_id=${emp_id}&year=${year}`);
   }
 
+  checkIn() {
+    return this._baseApiService.put(`overtime/check-in`, {});
+  }
+
+  checkOut() {
+    return this._baseApiService.put(`overtime/check-out`, {});
+  }
+
   createOvertime(overtime: Overtime) {
     return this._baseApiService.post(`overtime`, overtime);
   }

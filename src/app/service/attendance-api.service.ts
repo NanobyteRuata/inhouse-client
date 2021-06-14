@@ -1,3 +1,4 @@
+import { formatDate } from '@angular/common';
 import { Injectable } from '@angular/core';
 import { Attendance } from '../model/attendance-model';
 import { BaseApiService } from './base-api.service';
@@ -9,9 +10,18 @@ import { TestApi } from './test-api';
 export class AttendanceApiService {
   constructor(private baseApiService: BaseApiService) {}
 
-  getAttendance(employee_id: number, month: number, year: number) {
+  getAttendance(
+    employee_id: number,
+    month?: number,
+    year?: number,
+    date?: number,
+  ) {
     return this.baseApiService.get(
-      `attendance?emp_id=${employee_id}&month=${month}&year=${year}`
+      `attendance?emp_id=${employee_id}${
+        month != null ? '&month=' + month : ''
+      }${year != null ? '&year=' + year : ''}${
+        date != null ? '&date=' + formatDate(date, 'yyyy-MM-dd', 'en-us') : ''
+      }`,
     );
   }
 
@@ -20,7 +30,7 @@ export class AttendanceApiService {
   }
 
   checkOut() {
-    return this.baseApiService.post(`attendance/check-out`, {});
+    return this.baseApiService.put(`attendance/check-out`, {});
   }
 
   createAttendance(attendance: Attendance) {
