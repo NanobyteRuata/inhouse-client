@@ -1,5 +1,6 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { Router } from '@angular/router';
+import * as moment from 'moment';
 import { NzMessageService } from 'ng-zorro-antd/message';
 import { EmployeeSearchComponentComponent } from 'src/app/component/employee-search-component/employee-search-component.component';
 import { MonthYearSelectComponentComponent } from 'src/app/component/month-year-select-component/month-year-select-component.component';
@@ -66,7 +67,7 @@ export class AttendancePageComponent implements OnInit {
         ? this.checkWeekend(item.date)
         : statusId == 1
         ? !this.checkWeekend(item.date)
-        : item.holiday != null
+        : item.holiday != null,
     );
   remarksFilterList = [
     { text: 'Leave', value: 0 },
@@ -79,14 +80,14 @@ export class AttendancePageComponent implements OnInit {
         ? item.leave != null
         : statusId == 1
         ? item.overtime != null
-        : item.attendance == null
+        : item.attendance == null,
     );
 
   constructor(
     private message: NzMessageService,
     private attendanceApiService: AttendanceApiService,
     private holidayApiService: HolidayApiService,
-    private router: Router
+    private router: Router,
   ) {}
 
   ngOnInit(): void {
@@ -109,7 +110,7 @@ export class AttendancePageComponent implements OnInit {
   initializeCurrentUser(): void {
     let currentUserDataJsonString = localStorage.getItem('current_employee');
     let decryptedUserData = EncryptionUtil.decryptData(
-      currentUserDataJsonString
+      currentUserDataJsonString,
     );
     this.currentUserEmployee = decryptedUserData;
   }
@@ -119,7 +120,7 @@ export class AttendancePageComponent implements OnInit {
     this.getAttendance(
       this.selectedEmployee.id,
       this.monthYearSelectComponent.date.getMonth(),
-      this.monthYearSelectComponent.date.getFullYear()
+      this.monthYearSelectComponent.date.getFullYear(),
     );
   }
 
@@ -223,7 +224,7 @@ export class AttendancePageComponent implements OnInit {
       .subscribe((response: Response) => {
         if (response.success) {
           delete this.attendanceResultList.filter(
-            (att) => DateUtil.compareDates(att.date, data.date) == 0
+            (att) => DateUtil.compareDates(att.date, data.date) == 0,
           )[0].attendance;
           this.message.create('success', response.message);
         } else {
@@ -242,20 +243,11 @@ export class AttendancePageComponent implements OnInit {
   calculateWorkingHour(
     checkinTime: number,
     checkoutTime: number,
-    leave?: any
+    leave?: any,
   ): string {
-    let differenceTimeAsDate = new Date(
-      checkoutTime - checkinTime - (leave == null ? 3600000 : 0)
-    );
-    return (
-      differenceTimeAsDate
-        .getUTCHours()
-        .toLocaleString('en-US', { minimumIntegerDigits: 2 }) +
-      ':' +
-      differenceTimeAsDate
-        .getUTCMinutes()
-        .toLocaleString('en-US', { minimumIntegerDigits: 2 })
-    );
+    return moment
+      .utc(moment(checkoutTime).diff(moment(checkinTime)))
+      .format('HH:mm');
   }
 
   getLeaveTooltopTitle(leave: any): string {
@@ -300,7 +292,7 @@ export class AttendancePageComponent implements OnInit {
       .subscribe((response: Response) => {
         if (response.success) {
           this.attendanceResultList.filter(
-            (att) => DateUtil.compareDates(att.date, response.result.date) == 0
+            (att) => DateUtil.compareDates(att.date, response.result.date) == 0,
           )[0].holiday = response.result;
           this.message.create('success', response.message);
           this.editHoliday = null;
@@ -319,7 +311,8 @@ export class AttendancePageComponent implements OnInit {
       .subscribe((response: Response) => {
         if (response.success) {
           this.attendanceResultList.find(
-            (att) => DateUtil.compareDates(att.date, attendanceResult.date) == 0
+            (att) =>
+              DateUtil.compareDates(att.date, attendanceResult.date) == 0,
           ).holiday = null;
           this.message.create('success', response.message);
           this.editHoliday = null;

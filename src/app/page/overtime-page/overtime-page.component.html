@@ -86,15 +86,19 @@
             </td>
             <td colspan="5">
               <div style="display: flex; flex-direction: column">
-                <span>{{
+                <span style="font-size: 10pt">{{
                   showTimeIn12(data.request_start_datetime) +
-                    " - " +
+                    ' - ' +
                     showTimeIn12(data.request_end_datetime)
                 }}</span>
-                <span>{{
-                  showTimeIn12(data.actual_start_datetime) +
-                    " - " +
-                    showTimeIn12(data.actual_end_datetime)
+                <span style="font-size: 12pt">{{
+                  (data.actual_start_datetime
+                    ? showTimeIn12(data.actual_start_datetime)
+                    : '-- : -- ') +
+                    ' - ' +
+                    (data.actual_end_datetime
+                      ? showTimeIn12(data.actual_end_datetime)
+                      : ' -- : --')
                 }}</span>
               </div>
             </td>
@@ -119,24 +123,25 @@
               <span>
                 {{
                   data.status == 0
-                    ? "Pending"
+                    ? 'Pending'
                     : data.status == 1
-                    ? "Approved"
+                    ? 'Approved'
                     : data.status == 2
-                    ? "Rejected"
-                    : "Cancelled"
+                    ? 'Rejected'
+                    : 'Cancelled'
                 }}
               </span>
             </td>
             <td colspan="2">
               <span>
-                {{ showDateAndMonth(data.created_at) }}
+                {{ showDateAndMonth(data.created_date) }}
               </span>
             </td>
             <td colspan="1" style="text-align: right">
               <a
                 nz-button
                 nzType="link"
+                [nzLoading]="isOvertimeDeleteLoading"
                 nz-popconfirm
                 nzPopconfirmTitle="Are you sure you want to delete this overtime data?"
                 nzPopconfirmPlacement="top"

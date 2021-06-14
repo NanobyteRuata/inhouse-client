@@ -32,7 +32,7 @@ export class DashboardPageComponent implements OnInit {
     private attendanceApiService: AttendanceApiService,
     private _leaveAllowanceApiService: LeaveAllowanceApiService,
     private _leaveTypeApiService: LeaveTypeApiService,
-    private overtimeApiService: OvertimeApiService
+    private overtimeApiService: OvertimeApiService,
   ) {}
 
   ngOnInit(): void {
@@ -48,7 +48,7 @@ export class DashboardPageComponent implements OnInit {
   initializeCurrentUser(): void {
     let currentUserDataJsonString = localStorage.getItem('current_employee');
     let decryptedUserData = EncryptionUtil.decryptData(
-      currentUserDataJsonString
+      currentUserDataJsonString,
     );
     this.currentUserEmployee = decryptedUserData;
 
@@ -56,7 +56,7 @@ export class DashboardPageComponent implements OnInit {
       this._leaveAllowanceApiService,
       this._leaveTypeApiService,
       this.currentUserEmployee,
-      this.message
+      this.message,
     );
   }
 
@@ -69,12 +69,13 @@ export class DashboardPageComponent implements OnInit {
         this.currentUserEmployee.id,
         null,
         null,
-        new Date().getTime()
+        new Date().getTime(),
       )
       .subscribe(
         (response: Response) => {
           if (response.success) {
             this.attendanceResult = response.result;
+            console.log(this.attendanceResult);
             console.log(
               this.attendanceResult &&
                 !this.checkWeekend(this.attendanceResult.date) &&
@@ -85,12 +86,13 @@ export class DashboardPageComponent implements OnInit {
                       this.attendanceResult.attendance.check_out_time !=
                         null))) ||
                   (this.attendanceResult.overtime != null &&
-                    this.attendanceResult.overtime.actual_end_datetime == null))
+                    this.attendanceResult.overtime.actual_end_datetime ==
+                      null)),
             );
           } else {
             this.message.create(
               'error',
-              response.message ? response.message : response.toString()
+              response.message ? response.message : response.toString(),
             );
           }
           this.isCheckinButtonLoading = false;
@@ -98,10 +100,10 @@ export class DashboardPageComponent implements OnInit {
         (err) => {
           this.message.create(
             'error',
-            err.message ? err.message : err.toString()
+            err.message ? err.message : err.toString(),
           );
           this.isCheckinButtonLoading = false;
-        }
+        },
       );
   }
 
@@ -136,10 +138,10 @@ export class DashboardPageComponent implements OnInit {
       (err) => {
         this.message.create(
           'error',
-          err.message ? err.message : err.toString()
+          err.message ? err.message : err.toString(),
         );
         this.isCheckinButtonLoading = false;
-      }
+      },
     );
   }
 }

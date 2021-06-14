@@ -45,7 +45,7 @@ export class NewOvertimeDialogComponent implements OnInit {
   constructor(
     private message: NzMessageService,
     private _overtimeApiService: OvertimeApiService,
-    private _supervisorApiService: SupervisorApiService
+    private _supervisorApiService: SupervisorApiService,
   ) {}
 
   ngOnInit(): void {}
@@ -137,7 +137,7 @@ export class NewOvertimeDialogComponent implements OnInit {
         console.log(err);
         this.message.error(err.message);
         this.isNewOvertimeModalLoading = false;
-      }
+      },
     );
   }
 

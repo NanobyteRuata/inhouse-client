@@ -25,7 +25,7 @@ export class LeaveTypePageComponent implements OnInit {
 
   constructor(
     private _leaveTypeApiService: LeaveTypeApiService,
-    private _message: NzMessageService
+    private _message: NzMessageService,
   ) {}
 
   ngOnInit(): void {
@@ -38,7 +38,7 @@ export class LeaveTypePageComponent implements OnInit {
     let tempLeaveTypeList = [];
 
     //TODO api connect
-    this._leaveTypeApiService.getAll().subscribe(
+    this._leaveTypeApiService.getAll(year).subscribe(
       (response: Response) => {
         if (response.success) {
           this.leaveTypeList = response.result;
@@ -51,7 +51,7 @@ export class LeaveTypePageComponent implements OnInit {
       (err) => {
         this._message.create('error', err.message);
         this.isLeaveTypeTableLoading = false;
-      }
+      },
     );
   }
 
@@ -75,7 +75,7 @@ export class LeaveTypePageComponent implements OnInit {
     if (this.editingLeaveType.valid_at < 0) {
       this._message.create(
         'error',
-        'Leave type cannot become valid at less than zero month.'
+        'Leave type cannot become valid at less than zero month.',
       );
       return;
     }
@@ -95,7 +95,7 @@ export class LeaveTypePageComponent implements OnInit {
           else {
             console.log(response.result);
             this.leaveTypeList = this.leaveTypeList.map((lt) =>
-              lt.id == response.result.id ? response.result : lt
+              lt.id == response.result.id ? response.result : lt,
             );
           }
           this._message.create('success', response.message);
@@ -109,7 +109,7 @@ export class LeaveTypePageComponent implements OnInit {
         console.log(err);
         this._message.create('error', err.message);
         this.isLeaveTypeSaveLoading = false;
-      }
+      },
     );
   }
 
@@ -120,7 +120,7 @@ export class LeaveTypePageComponent implements OnInit {
       (response: Response) => {
         if (response.success) {
           this.leaveTypeList = this.leaveTypeList.filter(
-            (lt) => lt.id != leaveType.id
+            (lt) => lt.id != leaveType.id,
           );
           this._message.create('success', response.message);
         } else {
@@ -133,7 +133,7 @@ export class LeaveTypePageComponent implements OnInit {
         this._message.create('error', err.message);
         this.isLeaveTypeDeleteLoading = false;
         this.editingLeaveType = null;
-      }
+      },
     );
   }
 

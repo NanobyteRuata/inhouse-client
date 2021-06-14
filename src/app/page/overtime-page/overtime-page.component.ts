@@ -23,6 +23,7 @@ export class OvertimePageComponent implements OnInit {
   tableHeight: string = '500px';
   overtimeDataLength: number = 0;
   isNewOvertimeModalVisible: boolean = false;
+  isOvertimeDeleteLoading: boolean = false;
 
   currentUserEmployee: Employee;
   selectedEmployee: Employee;
@@ -53,7 +54,7 @@ export class OvertimePageComponent implements OnInit {
     statusIdList.some((statusId) => new Date(item.date).getMonth() == statusId);
   requestedDateFilterFunction = (statusIdList: any[], item: any): boolean =>
     statusIdList.some(
-      (statusId) => new Date(item.created_at).getMonth() == statusId
+      (statusId) => new Date(item.created_at).getMonth() == statusId,
     );
   reportToFilterList: Employee[] = [];
   reportToFilterFunction = (statusIdList: any[], item: any): boolean =>
@@ -69,7 +70,7 @@ export class OvertimePageComponent implements OnInit {
 
   constructor(
     private _message: NzMessageService,
-    private _overtimeApiService: OvertimeApiService
+    private _overtimeApiService: OvertimeApiService,
   ) {}
 
   ngOnInit(): void {
@@ -90,7 +91,7 @@ export class OvertimePageComponent implements OnInit {
   initializeCurrentUser(): void {
     let currentUserDataJsonString = localStorage.getItem('current_employee');
     let decryptedUserData = EncryptionUtil.decryptData(
-      currentUserDataJsonString
+      currentUserDataJsonString,
     );
     this.currentUserEmployee = decryptedUserData;
   }
@@ -115,7 +116,7 @@ export class OvertimePageComponent implements OnInit {
       (err) => {
         this._message.error(err.message);
         this.isOvertimeTableLoading = false;
-      }
+      },
     );
   }
 
@@ -129,5 +130,24 @@ export class OvertimePageComponent implements OnInit {
     this.getOvertime(this.selectedEmployee.id, event.year);
   }
 
-  onOvertimeDeleteClick(overtime: Overtime) {}
+  onOvertimeDeleteClick(overtime: Overtime) {
+    this.isOvertimeDeleteLoading = true;
+    this._overtimeApiService.deleteOvertime(overtime.id).subscribe(
+      (response: Response) => {
+        if (response.success) {
+          this.overtimeList = this.overtimeList.filter(
+            (ot) => ot.id != overtime.id,
+          );
+          this._message.success(response.message);
+        } else {
+          this._message.error(response.message);
+        }
+        this.isOvertimeDeleteLoading = false;
+      },
+      (err) => {
+        this._message.error(err.error.message);
+        this.isOvertimeDeleteLoading = false;
+      },
+    );
+  }
 }

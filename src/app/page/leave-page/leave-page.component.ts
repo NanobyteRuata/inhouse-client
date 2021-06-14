@@ -77,7 +77,7 @@ export class LeavePageComponent implements OnInit {
     statusIdList.some((statusId) => new Date(item.date).getMonth() == statusId);
   requestedDateFilterFunction = (statusIdList: any[], item: any): boolean =>
     statusIdList.some(
-      (statusId) => new Date(item.created_at).getMonth() == statusId
+      (statusId) => new Date(item.created_at).getMonth() == statusId,
     );
   leaveTypeFilterFunction = (statusIdList: any[], item: any): boolean =>
     statusIdList.some((statusId) => item.leave_type.id == statusId);
@@ -91,7 +91,7 @@ export class LeavePageComponent implements OnInit {
     private message: NzMessageService,
     private _leaveAllowanceApiService: LeaveAllowanceApiService,
     private _leaveTypeApiService: LeaveTypeApiService,
-    private _leaveApiService: LeaveApiService
+    private _leaveApiService: LeaveApiService,
   ) {}
 
   ngOnInit(): void {
@@ -115,7 +115,7 @@ export class LeavePageComponent implements OnInit {
   initializeCurrentUser(): void {
     let currentUserDataJsonString = localStorage.getItem('current_employee');
     let decryptedUserData = EncryptionUtil.decryptData(
-      currentUserDataJsonString
+      currentUserDataJsonString,
     );
     this.currentUserEmployee = decryptedUserData;
   }
@@ -143,7 +143,7 @@ export class LeavePageComponent implements OnInit {
 
   onLeaveAllowanceFilterChange(
     event: any,
-    leaveAllowanceTable: NzTableComponent
+    leaveAllowanceTable: NzTableComponent,
   ) {
     this.leaveAllowanceDataLength = leaveAllowanceTable.data.length;
     this.cdRef.detectChanges();
@@ -167,7 +167,7 @@ export class LeavePageComponent implements OnInit {
           for (let tempLeave of response.result) {
             if (
               tempReportToFilterList.filter(
-                (tempReportTo) => tempReportTo.value == tempLeave.report_to.id
+                (tempReportTo) => tempReportTo.value == tempLeave.report_to.id,
               ).length == 0
             ) {
               tempReportToFilterList.push({
@@ -185,7 +185,7 @@ export class LeavePageComponent implements OnInit {
       (err) => {
         this.message.error(err.message);
         this.isLeaveTableLoading = false;
-      }
+      },
     );
   }
 
@@ -195,7 +195,7 @@ export class LeavePageComponent implements OnInit {
     this.leaveTypeFilterList = [];
     let tempLeaveTypesFilterList = [];
 
-    this._leaveAllowanceApiService.getAll(emp_id).subscribe(
+    this._leaveAllowanceApiService.getAll(emp_id, year).subscribe(
       (response: Response) => {
         if (response.success) {
           this.leaveAllowanceList = response.result;
@@ -204,7 +204,7 @@ export class LeavePageComponent implements OnInit {
             if (
               tempLeaveTypesFilterList.filter(
                 (tempLeaveType) =>
-                  tempLeaveType.value == tempLeaveAllowance.leave_type.id
+                  tempLeaveType.value == tempLeaveAllowance.leave_type.id,
               ).length == 0
             ) {
               tempLeaveTypesFilterList.push({
@@ -225,7 +225,7 @@ export class LeavePageComponent implements OnInit {
       (err) => {
         this.message.error(err.message);
         this.isLeaveAllowanceTableLoading = false;
-      }
+      },
     );
   }
 
@@ -235,7 +235,7 @@ export class LeavePageComponent implements OnInit {
       this._leaveTypeApiService,
       this.selectedEmployee,
       this.message,
-      leaveAllowanceList
+      leaveAllowanceList,
     );
   }
 
@@ -266,7 +266,7 @@ export class LeavePageComponent implements OnInit {
         this.message.error(err.message);
         this.isLeaveDeleteLoading = false;
         this.leaveDeleteLoadingId = null;
-      }
+      },
     );
   }
 
@@ -280,10 +280,10 @@ export class LeavePageComponent implements OnInit {
     let subscription =
       this.leaveAllowanceEditData.id == null
         ? this._leaveAllowanceApiService.createLeaveAllowance(
-            this.leaveAllowanceEditData
+            this.leaveAllowanceEditData,
           )
         : this._leaveAllowanceApiService.updateLeaveAllowance(
-            this.leaveAllowanceEditData
+            this.leaveAllowanceEditData,
           );
 
     subscription.subscribe(
@@ -303,7 +303,7 @@ export class LeavePageComponent implements OnInit {
       (err) => {
         this.message.error(err.message);
         this.isLeaveAllowanceSaveLoading = false;
-      }
+      },
     );
   }
 
@@ -314,7 +314,7 @@ export class LeavePageComponent implements OnInit {
         (response: Response) => {
           if (response.success) {
             this.leaveAllowanceList = this.leaveAllowanceList.filter(
-              (la) => la.id != leaveAllowance.id
+              (la) => la.id != leaveAllowance.id,
             );
             this.message.success(response.message);
           } else {
@@ -325,7 +325,7 @@ export class LeavePageComponent implements OnInit {
         (err) => {
           this.message.error(err.message);
           this.isLeaveAllowanceDeleteLoading = false;
-        }
+        },
       );
   }
 

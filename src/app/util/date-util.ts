@@ -5,7 +5,7 @@ export class DateUtil {
     return formatDate(
       DateUtil.convertAnythingIntoDate(date),
       'dd (E)',
-      'en-US'
+      'en-US',
     );
   }
 
@@ -13,7 +13,7 @@ export class DateUtil {
     return formatDate(
       DateUtil.convertAnythingIntoDate(date),
       'dd MMM (E)',
-      'en-US'
+      'en-US',
     );
   }
 
@@ -21,7 +21,7 @@ export class DateUtil {
     return formatDate(
       DateUtil.convertAnythingIntoDate(date),
       'dd MMM yyyy (E)',
-      'en-US'
+      'en-US',
     );
   }
 
@@ -33,7 +33,7 @@ export class DateUtil {
     return formatDate(
       DateUtil.convertAnythingIntoDate(date),
       'hh:mm a',
-      'en-US'
+      'en-US',
     );
   }
 

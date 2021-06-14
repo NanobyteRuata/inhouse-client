@@ -8,8 +8,10 @@ import { BaseApiService } from './base-api.service';
 export class LeaveAllowanceApiService {
   constructor(private _baseApiService: BaseApiService) {}
 
-  getAll(emp_id: number) {
-    return this._baseApiService.get(`leave_allowance?emp_id=${emp_id}`);
+  getAll(emp_id: number, year?: number) {
+    return this._baseApiService.get(
+      `leave_allowance?emp_id=${emp_id}${year ? '&year=' + year : ''}`,
+    );
   }
 
   createLeaveAllowance(leaveAlowance: LeaveAllowance) {
@@ -19,7 +21,7 @@ export class LeaveAllowanceApiService {
   updateLeaveAllowance(leaveAllowance: LeaveAllowance) {
     return this._baseApiService.put(
       `leave_allowance/${leaveAllowance.id}`,
-      leaveAllowance
+      leaveAllowance,
     );
   }
 

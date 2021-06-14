@@ -8,8 +8,8 @@ import { BaseApiService } from './base-api.service';
 export class LeaveTypeApiService {
   constructor(private _baseApiService: BaseApiService) {}
 
-  getAll() {
-    return this._baseApiService.get(`leave_type`);
+  getAll(year?: number) {
+    return this._baseApiService.get(`leave_type${year ? '?year=' + year : ''}`);
   }
 
   createNew(leaveType: LeaveType) {
