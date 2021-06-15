@@ -81,7 +81,7 @@ export class EmployeePageComponent implements OnInit {
     private message: NzMessageService,
     private departmentApiService: DepartmentApiService,
     private supervisorApiService: SupervisorApiService,
-    private employeeApiService: EmployeeApiService
+    private employeeApiService: EmployeeApiService,
   ) {
     // check if this is navigated with employee id
     let strParam = this.route.snapshot.paramMap.get('employee_id');
@@ -112,12 +112,12 @@ export class EmployeePageComponent implements OnInit {
   initializeCurrentUser() {
     let currentUserDataJsonString = localStorage.getItem('current_employee');
     let decryptedUserData = EncryptionUtil.decryptData(
-      currentUserDataJsonString
+      currentUserDataJsonString,
     );
     this.currentUserEmployee = decryptedUserData;
     let currentAuthTokenJsonString = localStorage.getItem('auth_token');
     let decryptedAuthToken = EncryptionUtil.decryptData(
-      currentAuthTokenJsonString
+      currentAuthTokenJsonString,
     );
     this.authToken = decryptedAuthToken;
   }
@@ -208,7 +208,7 @@ export class EmployeePageComponent implements OnInit {
     if (this.replaceDepartment == null) {
       this.message.create(
         'error',
-        'Please choose a department to replace with!'
+        'Please choose a department to replace with!',
       );
       return;
     }
@@ -219,12 +219,12 @@ export class EmployeePageComponent implements OnInit {
     this.departmentApiService
       .deleteDepartment(
         this.selectedEmployee.department.id,
-        this.replaceDepartment.id
+        this.replaceDepartment.id,
       )
       .subscribe((response: Response) => {
         if (response.success) {
           this.departments = this.departments.filter(
-            (dep) => dep.id != this.selectedEmployee.department.id
+            (dep) => dep.id != this.selectedEmployee.department.id,
           );
           this.selectedEmployee.department = this.replaceDepartment;
 
@@ -238,7 +238,7 @@ export class EmployeePageComponent implements OnInit {
           }
           this.employeeSearchComponent1.departments =
             this.employeeSearchComponent1.departments.filter(
-              (dep) => dep.id != response.result.id
+              (dep) => dep.id != response.result.id,
             );
           this.employeeSearchComponent1.employees
             .filter((emp) => emp.department.id == response.result.id)
@@ -252,7 +252,7 @@ export class EmployeePageComponent implements OnInit {
           }
           this.employeeSearchComponent2.departments =
             this.employeeSearchComponent2.departments.filter(
-              (dep) => dep.id != response.result.id
+              (dep) => dep.id != response.result.id,
             );
           this.employeeSearchComponent2.employees
             .filter((emp) => emp.department.id == response.result.id)
@@ -262,7 +262,7 @@ export class EmployeePageComponent implements OnInit {
             this.currentUserEmployee = this.selectedEmployee;
             localStorage.setItem(
               'current_employee',
-              JSON.stringify(this.selectedEmployee)
+              JSON.stringify(this.selectedEmployee),
             );
           }
 
@@ -306,11 +306,11 @@ export class EmployeePageComponent implements OnInit {
         if (response.success) {
           this.employeeSearchComponent1.employees =
             this.employeeSearchComponent1.employees.filter(
-              (emp) => emp.id != this.selectedEmployee.id
+              (emp) => emp.id != this.selectedEmployee.id,
             );
           this.employeeSearchComponent2.employees =
             this.employeeSearchComponent2.employees.filter(
-              (emp) => emp.id != this.selectedEmployee.id
+              (emp) => emp.id != this.selectedEmployee.id,
             );
           this.message.create('success', response.message);
         } else {
@@ -341,7 +341,7 @@ export class EmployeePageComponent implements OnInit {
 
   get replaceableDepartments() {
     return this.departments.filter(
-      (dev) => dev.id != this.selectedEmployee.department.id
+      (dev) => dev.id != this.selectedEmployee.department.id,
     );
   }
 
@@ -373,7 +373,7 @@ export class EmployeePageComponent implements OnInit {
       .subscribe((response: Response) => {
         if (response.success) {
           this.message.create('success', response.message);
-          this.supervisors.push(response.result);
+          this.supervisors.push(response.result.supervisor);
         } else {
           this.message.create('error', response.message);
         }
@@ -389,13 +389,13 @@ export class EmployeePageComponent implements OnInit {
     this.supervisorApiService
       .removeSupervisor(
         this.selectedEmployee.id,
-        this.selectedExistingSupervisor.id
+        this.selectedExistingSupervisor.id,
       )
       .subscribe((response: Response) => {
         if (response.success) {
           this.message.create('success', response.message);
           this.supervisors = this.supervisors.filter(
-            (sup) => sup.id != response.result.id
+            (sup) => sup.id != this.selectedExistingSupervisor.id,
           );
         } else {
           this.message.create('error', response.message);
@@ -437,8 +437,8 @@ export class EmployeePageComponent implements OnInit {
             localStorage.setItem(
               'current_employee',
               EncryptionUtil.encryptData(
-                JSON.stringify(this.currentUserEmployee)
-              )
+                JSON.stringify(this.currentUserEmployee),
+              ),
             );
           }
           this.message.create('success', response.message);
@@ -453,7 +453,7 @@ export class EmployeePageComponent implements OnInit {
     let invalidField: string | null = null;
     let invalidType: string | null = null;
     let emailRegExp = new RegExp(
-      /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
+      /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/,
     );
     let phoneRegExp = new RegExp(/^[0-9+-]+$/g);
 
@@ -503,7 +503,7 @@ export class EmployeePageComponent implements OnInit {
     if (invalidField != null) {
       this.message.create(
         'error',
-        `Field '${invalidField}' is ${invalidType}!`
+        `Field '${invalidField}' is ${invalidType}!`,
       );
       return;
     }
@@ -514,7 +514,7 @@ export class EmployeePageComponent implements OnInit {
     this.selectedEmployee.joined_date = formatDate(
       this.selectedEmployee.joined_date,
       'yyyy-MM-dd',
-      'en-US'
+      'en-US',
     );
 
     if (this.selectedEmployee.id == null) {
@@ -548,13 +548,13 @@ export class EmployeePageComponent implements OnInit {
     this.employeeSearchComponent1.employees = [response.result];
     this.selectedEmployee = CloneUtil.clone(response.result);
     this.selectedEmployee.department = this.departments.filter(
-      (dep) => dep.id == this.selectedEmployee.department.id
+      (dep) => dep.id == this.selectedEmployee.department.id,
     )[0];
     if (this.currentUserEmployee.id == this.selectedEmployee.id) {
       this.currentUserEmployee = response.result;
       localStorage.setItem(
         'current_employee',
-        EncryptionUtil.encryptData(JSON.stringify(this.currentUserEmployee))
+        EncryptionUtil.encryptData(JSON.stringify(this.currentUserEmployee)),
       );
     }
     this.message.create('success', response.message);

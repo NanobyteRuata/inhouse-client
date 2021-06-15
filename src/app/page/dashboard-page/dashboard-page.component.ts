@@ -75,20 +75,6 @@ export class DashboardPageComponent implements OnInit {
         (response: Response) => {
           if (response.success) {
             this.attendanceResult = response.result;
-            console.log(this.attendanceResult);
-            console.log(
-              this.attendanceResult &&
-                !this.checkWeekend(this.attendanceResult.date) &&
-                this.attendanceResult.holiday == null &&
-                ((this.attendanceResult.overtime == null &&
-                  (this.attendanceResult.attendance == null ||
-                    (this.attendanceResult.attendance != null &&
-                      this.attendanceResult.attendance.check_out_time !=
-                        null))) ||
-                  (this.attendanceResult.overtime != null &&
-                    this.attendanceResult.overtime.actual_end_datetime ==
-                      null)),
-            );
           } else {
             this.message.create(
               'error',
@@ -107,17 +93,23 @@ export class DashboardPageComponent implements OnInit {
       );
   }
 
-  checkin() {
+  actionButtonClicked() {
     this.isCheckinButtonLoading = true;
 
     let subscription =
-      this.attendanceResult.overtime == null
-        ? this.attendanceResult.attendance == null
-          ? this.attendanceApiService.checkIn()
-          : this.attendanceApiService.checkOut()
-        : this.attendanceResult.overtime.actual_start_datetime == null
+      this.checkAction == 0
+        ? this.attendanceApiService.checkIn()
+        : this.checkAction == 1
+        ? this.attendanceApiService.checkOut()
+        : this.checkAction == 2
         ? this.overtimeApiService.checkIn()
-        : this.overtimeApiService.checkOut();
+        : this.checkAction == 3
+        ? this.overtimeApiService.checkOut()
+        : null;
+
+    if (!subscription) {
+      return;
+    }
 
     subscription.subscribe(
       (response: Response) => {
@@ -143,5 +135,66 @@ export class DashboardPageComponent implements OnInit {
         this.isCheckinButtonLoading = false;
       },
     );
+  }
+
+  // 0 = checkin
+  // 1 = checkout
+  // 2 = checkin OT
+  // 3 = checkout OT
+  // 4 = none
+  get checkAction() {
+    if (this.attendanceResult) {
+      if (
+        this.checkWeekend(this.attendanceResult.date) ||
+        this.attendanceResult.holiday ||
+        this.attendanceResult.leave
+      ) {
+        if (this.attendanceResult.overtime) {
+          if (
+            !this.attendanceResult.overtime.actual_start_datetime &&
+            !this.attendanceResult.overtime.actual_end_datetime
+          ) {
+            return 2;
+          } else if (
+            this.attendanceResult.overtime.actual_start_datetime &&
+            !this.attendanceResult.overtime.actual_end_datetime
+          ) {
+            return 3;
+          } else {
+            return 4;
+          }
+        } else {
+          return 4;
+        }
+      } else {
+        if (this.attendanceResult.attendance) {
+          if (this.attendanceResult.attendance.check_out_time) {
+            if (this.attendanceResult.overtime) {
+              if (
+                !this.attendanceResult.overtime.actual_start_datetime &&
+                !this.attendanceResult.overtime.actual_end_datetime
+              ) {
+                return 2;
+              } else if (
+                this.attendanceResult.overtime.actual_start_datetime &&
+                !this.attendanceResult.overtime.actual_end_datetime
+              ) {
+                return 3;
+              } else {
+                return 4;
+              }
+            } else {
+              return 4;
+            }
+          } else {
+            return 1;
+          }
+        } else {
+          return 0;
+        }
+      }
+    } else {
+      return 4;
+    }
   }
 }

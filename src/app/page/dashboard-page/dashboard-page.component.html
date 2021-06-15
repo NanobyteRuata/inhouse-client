@@ -5,32 +5,22 @@
     </nz-breadcrumb>
     <div style="margin-left: auto">
       <button
-        *ngIf="
-          attendanceResult &&
-          !checkWeekend(attendanceResult.date) &&
-          attendanceResult.holiday == null &&
-          (((attendanceResult.overtime == null ||
-            attendanceResult.overtime.status != 1) &&
-            (attendanceResult.attendance == null ||
-              (attendanceResult.attendance != null &&
-                attendanceResult.attendance.check_out_time == null))) ||
-            (attendanceResult.overtime != null &&
-              attendanceResult.overtime.status == 1 &&
-              attendanceResult.overtime.actual_end_datetime == null))
-        "
+        *ngIf="checkAction != 4"
         nz-button
         [nzLoading]="isCheckinButtonLoading || attendanceResult == null"
         nzType="primary"
-        (click)="checkin()"
+        (click)="actionButtonClicked()"
       >
         {{
-          this.attendanceResult.overtime == null
-            ? this.attendanceResult.attendance == null
-              ? 'Check In'
-              : 'Check Out'
-            : this.attendanceResult.overtime.actual_start_datetime == null
-            ? 'Checkin OT'
-            : 'Checkout OT'
+          checkAction == 0
+            ? 'Check In'
+            : checkAction == 1
+            ? 'Check Out'
+            : checkAction == 2
+            ? 'Check In OT'
+            : checkAction == 3
+            ? 'Check Out OT'
+            : ''
         }}
       </button>
     </div>

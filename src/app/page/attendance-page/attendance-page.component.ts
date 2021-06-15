@@ -8,6 +8,7 @@ import { Attendance } from 'src/app/model/attendance-model';
 import { AttendanceResult } from 'src/app/model/attendance-result-model';
 import { Employee } from 'src/app/model/employee-model';
 import { Holiday } from 'src/app/model/holiday-model';
+import { Overtime } from 'src/app/model/overtime-model';
 import { Response } from 'src/app/model/response-model';
 import { AttendanceApiService } from 'src/app/service/attendance-api.service';
 import { HolidayApiService } from 'src/app/service/holiday-api.service';
@@ -258,12 +259,12 @@ export class AttendancePageComponent implements OnInit {
     );
   }
 
-  getOvertimeTooltopTitle(overtime: any): string {
+  getOvertimeTooltopTitle(overtime: Overtime): string {
     return (
       'Overtime (' +
-      DateUtil.showTimeIn12(overtime.check_in_time) +
+      DateUtil.showTimeIn12(overtime.request_start_datetime) +
       ' - ' +
-      DateUtil.showTimeIn12(overtime.check_out_time) +
+      DateUtil.showTimeIn12(overtime.request_end_datetime) +
       ')'
     );
   }

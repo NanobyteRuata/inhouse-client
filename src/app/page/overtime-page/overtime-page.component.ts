@@ -1,10 +1,12 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit, ViewChild } from '@angular/core';
+import * as moment from 'moment';
 import { NzMessageService } from 'ng-zorro-antd/message';
 import { EmployeeSearchComponentComponent } from 'src/app/component/employee-search-component/employee-search-component.component';
 import { Employee } from 'src/app/model/employee-model';
 import { Overtime } from 'src/app/model/overtime-model';
 import { Response } from 'src/app/model/response-model';
 import { OvertimeApiService } from 'src/app/service/overtime-api.service';
+import { CloneUtil } from 'src/app/util/clone-util';
 import { DateUtil } from 'src/app/util/date-util';
 import { EncryptionUtil } from 'src/app/util/encryption-util';
 
@@ -23,11 +25,15 @@ export class OvertimePageComponent implements OnInit {
   tableHeight: string = '500px';
   overtimeDataLength: number = 0;
   isNewOvertimeModalVisible: boolean = false;
-  isOvertimeDeleteLoading: boolean = false;
+
+  overtimeDeletingId: number = null;
+
+  overtimeUpdatingId: number = null;
 
   currentUserEmployee: Employee;
   selectedEmployee: Employee;
 
+  isRequested = false;
   isOvertimeTableLoading: boolean = false;
   overtimeList: Overtime[] = [];
 
@@ -71,6 +77,7 @@ export class OvertimePageComponent implements OnInit {
   constructor(
     private _message: NzMessageService,
     private _overtimeApiService: OvertimeApiService,
+    private cdRef: ChangeDetectorRef,
   ) {}
 
   ngOnInit(): void {
@@ -101,23 +108,46 @@ export class OvertimePageComponent implements OnInit {
     this.getOvertime(employee.id, new Date().getFullYear());
   }
 
+  onOvertimeFilterChange(event, overtimeTable) {
+    this.overtimeDataLength = overtimeTable.data.length;
+    this.cdRef.detectChanges();
+  }
+
+  onRequestedChange(value: boolean, year: number) {
+    this.getOvertime(this.selectedEmployee.id, year);
+  }
+
   getOvertime(emp_id: number, year: number) {
     this.isOvertimeTableLoading = true;
 
-    this._overtimeApiService.getOvertime(emp_id, year).subscribe(
-      (response: Response) => {
-        if (response.success) {
-          this.overtimeList = response.result;
-        } else {
-          this._message.error(response.message);
-        }
-        this.isOvertimeTableLoading = false;
-      },
-      (err) => {
-        this._message.error(err.message);
-        this.isOvertimeTableLoading = false;
-      },
-    );
+    this._overtimeApiService
+      .getOvertime(emp_id, year, this.isRequested)
+      .subscribe(
+        (response: Response) => {
+          if (response.success) {
+            this.overtimeList = response.result;
+          } else {
+            this._message.error(response.message);
+          }
+          this.isOvertimeTableLoading = false;
+        },
+        (err) => {
+          this._message.error(err.message);
+          this.isOvertimeTableLoading = false;
+        },
+      );
+  }
+
+  get totalOvertimeDuration() {
+    let totalDuration = 0;
+    for (let overtime of this.overtimeList) {
+      if (overtime.actual_start_datetime && overtime.actual_end_datetime) {
+        totalDuration += moment(overtime.actual_end_datetime).diff(
+          moment(overtime.actual_start_datetime),
+        );
+      }
+    }
+    return moment.utc(totalDuration).format('HH:mm');
   }
 
   onNewOvertimeCreated(overtime: Overtime) {
@@ -130,8 +160,33 @@ export class OvertimePageComponent implements OnInit {
     this.getOvertime(this.selectedEmployee.id, event.year);
   }
 
+  onOvertimeResponseClick(overtime: Overtime, response: boolean) {
+    this.overtimeUpdatingId = overtime.id;
+    let tempOvertime = CloneUtil.clone(overtime);
+    tempOvertime.status = response ? 1 : 2;
+
+    this._overtimeApiService.updateOvertime(tempOvertime).subscribe(
+      (response: Response) => {
+        if (response.success) {
+          this.overtimeList = this.overtimeList.map((ot) =>
+            ot.id == response.result.id ? response.result : ot,
+          );
+          this._message.success(response.message);
+        } else {
+          this._message.error(response.message);
+        }
+        this.overtimeUpdatingId = null;
+      },
+      (err) => {
+        console.log(err);
+        this._message.error(err.error.message);
+        this.overtimeUpdatingId = null;
+      },
+    );
+  }
+
   onOvertimeDeleteClick(overtime: Overtime) {
-    this.isOvertimeDeleteLoading = true;
+    this.overtimeDeletingId = overtime.id;
     this._overtimeApiService.deleteOvertime(overtime.id).subscribe(
       (response: Response) => {
         if (response.success) {
@@ -142,12 +197,21 @@ export class OvertimePageComponent implements OnInit {
         } else {
           this._message.error(response.message);
         }
-        this.isOvertimeDeleteLoading = false;
+        this.overtimeDeletingId = null;
       },
       (err) => {
         this._message.error(err.error.message);
-        this.isOvertimeDeleteLoading = false;
+        this.overtimeDeletingId = null;
       },
     );
+  }
+
+  calculateTableHeight(): void {
+    let tableParentElement =
+      document.getElementsByClassName('overtime-body')[0];
+    this.tableHeight =
+      tableParentElement == null
+        ? '500px'
+        : tableParentElement.clientHeight - 267 + 'px';
   }
 }

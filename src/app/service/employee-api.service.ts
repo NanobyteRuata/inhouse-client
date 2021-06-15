@@ -11,7 +11,7 @@ import { TestApi } from './test-api';
 export class EmployeeApiService {
   constructor(
     private baseApiService: BaseApiService,
-    private http: HttpClient
+    private http: HttpClient,
   ) {}
 
   getEmployees(keyword?: string, departmentId?: number) {
@@ -24,7 +24,7 @@ export class EmployeeApiService {
             'department_id=' +
             departmentId
           : ''
-      }`
+      }`,
     );
   }
 
@@ -33,7 +33,7 @@ export class EmployeeApiService {
   }
 
   getEmployeeById(employee_id: number) {
-    return TestApi.getEmployeeById(employee_id);
+    return this.baseApiService.get(`employee/${employee_id}`);
   }
 
   updateEmployee(employee: Employee) {
@@ -54,7 +54,7 @@ export class EmployeeApiService {
   uploadImage(id: number, data: any) {
     return this.http.put(
       `${ApiConstants.BASE_URL}employee/${id}/upload-image`,
-      data
+      data,
     );
   }
 }

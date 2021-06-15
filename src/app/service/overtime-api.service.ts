@@ -8,8 +8,12 @@ import { BaseApiService } from './base-api.service';
 export class OvertimeApiService {
   constructor(private _baseApiService: BaseApiService) {}
 
-  getOvertime(emp_id: number, year: number) {
-    return this._baseApiService.get(`overtime?emp_id=${emp_id}&year=${year}`);
+  getOvertime(emp_id: number, year: number, isRequested = false) {
+    return this._baseApiService.get(
+      `overtime?${
+        (isRequested ? 'request_emp_id=' : 'emp_id=') + emp_id
+      }&year=${year}`,
+    );
   }
 
   checkIn() {
