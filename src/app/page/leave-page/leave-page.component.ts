@@ -40,6 +40,8 @@ export class LeavePageComponent implements OnInit {
   allowanceUpdateMessage: string;
   isLeaveAllowanceSaveLoading = false;
   isLeaveAllowanceDeleteLoading = false;
+  isRequested = false;
+  leaveUpdatingId: number = null;
   tableHeight = '500px';
 
   isNewLeaveModalVisible = false;
@@ -74,15 +76,17 @@ export class LeavePageComponent implements OnInit {
     { text: 'Cancelled', value: 3 },
   ];
   dateFilterFunction = (statusIdList: any[], item: any): boolean =>
-    statusIdList.some((statusId) => new Date(item.date).getMonth() == statusId);
+    statusIdList.some(
+      (statusId) => new Date(item.leave_date).getMonth() == statusId,
+    );
   requestedDateFilterFunction = (statusIdList: any[], item: any): boolean =>
     statusIdList.some(
-      (statusId) => new Date(item.created_at).getMonth() == statusId,
+      (statusId) => new Date(item.created_date).getMonth() == statusId,
     );
   leaveTypeFilterFunction = (statusIdList: any[], item: any): boolean =>
     statusIdList.some((statusId) => item.leave_type.id == statusId);
   reportToFilterFunction = (statusIdList: any[], item: any): boolean =>
-    statusIdList.some((statusId) => item.report_to.id == statusId);
+    statusIdList.some((statusId) => item.supervisor.id == statusId);
   statusFilterFunction = (statusIdList: any[], item: any): boolean =>
     statusIdList.some((statusId) => item.status == statusId);
 
@@ -130,6 +134,10 @@ export class LeavePageComponent implements OnInit {
     });
   }
 
+  onRequestedChange(value: boolean, year: number) {
+    this.getLeaves(this.selectedEmployee.id, year);
+  }
+
   onSelectEmployee(employee: any) {
     this.selectedEmployee = employee;
     this.getLeaves(employee.id, new Date().getFullYear());
@@ -150,8 +158,8 @@ export class LeavePageComponent implements OnInit {
   }
 
   onYearChange(event: any): void {
-    this.getLeaves(0, event.year);
-    this.getLeaveAllowance(0, event.year);
+    this.getLeaves(this.selectedEmployee.id, event.year);
+    this.getLeaveAllowance(this.selectedEmployee.id, event.year);
     this.isCurrentYear = event.year == new Date().getFullYear();
   }
 
@@ -160,33 +168,41 @@ export class LeavePageComponent implements OnInit {
     this.leaveList = [];
     let tempReportToFilterList = [];
 
-    this._leaveApiService.getAllLeaves(emp_id, year).subscribe(
-      (response: Response) => {
-        if (response.success) {
-          this.leaveList = response.result;
-          for (let tempLeave of response.result) {
-            if (
-              tempReportToFilterList.filter(
-                (tempReportTo) => tempReportTo.value == tempLeave.report_to.id,
-              ).length == 0
-            ) {
-              tempReportToFilterList.push({
-                text: tempLeave.report_to.name,
-                value: tempLeave.report_to.id,
-              });
+    this._leaveApiService
+      .getAllLeaves(emp_id, year, this.isRequested)
+      .subscribe(
+        (response: Response) => {
+          if (response.success) {
+            this.leaveList = response.result;
+            for (let tempLeave of response.result) {
+              if (
+                tempReportToFilterList.filter((tempReportTo) =>
+                  tempReportTo.value == this.isRequested
+                    ? tempLeave.employee.id
+                    : tempLeave.supervisor.id,
+                ).length == 0
+              ) {
+                tempReportToFilterList.push({
+                  text: this.isRequested
+                    ? tempLeave.employee.name
+                    : tempLeave.supervisor.name,
+                  value: this.isRequested
+                    ? tempLeave.employee.id
+                    : tempLeave.supervisor.id,
+                });
+              }
             }
+            this.reportToFilterList = tempReportToFilterList;
+          } else {
+            this.message.error(response.message);
           }
-          this.reportToFilterList = tempReportToFilterList;
-        } else {
-          this.message.error(response.message);
-        }
-        this.isLeaveTableLoading = false;
-      },
-      (err) => {
-        this.message.error(err.message);
-        this.isLeaveTableLoading = false;
-      },
-    );
+          this.isLeaveTableLoading = false;
+        },
+        (err) => {
+          this.message.error(err.message);
+          this.isLeaveTableLoading = false;
+        },
+      );
   }
 
   getLeaveAllowance(emp_id: number, year: number) {
@@ -245,6 +261,30 @@ export class LeavePageComponent implements OnInit {
     }
   }
 
+  onLeaveResponseClick(leave: Leave, response: boolean) {
+    this.leaveUpdatingId = leave.id;
+    let tempLeave: Leave = CloneUtil.clone(leave);
+    tempLeave.status = response ? 1 : 2;
+
+    this._leaveApiService.updateLeave(tempLeave).subscribe(
+      (response: Response) => {
+        if (response.success) {
+          this.leaveList = this.leaveList.map((l) =>
+            l.id == response.result.id ? response.result : l,
+          );
+          this.message.success(response.message);
+        } else {
+          this.message.error(response.message);
+        }
+        this.leaveUpdatingId = null;
+      },
+      (err) => {
+        this.message.error(err.error.message);
+        this.leaveUpdatingId = null;
+      },
+    );
+  }
+
   isLeaveDeleteLoading = false;
   leaveDeleteLoadingId;
   onLeaveDeleteClick(leave: Leave) {
@@ -294,6 +334,7 @@ export class LeavePageComponent implements OnInit {
             response.result,
           ];
           this.message.success(response.message);
+          this.leaveAllowanceEditData = null;
           this.checkLeaveAllowanceUpdate(this.leaveAllowanceList);
         } else {
           this.message.error(response.message);
@@ -339,6 +380,7 @@ export class LeavePageComponent implements OnInit {
 
   onLeaveAllowanceNewClick() {
     this.leaveAllowanceEditData = new LeaveAllowance();
+    this.leaveAllowanceEditData.employee = this.selectedEmployee;
   }
 
   // ng zorro table is designed to have fixed width and height
@@ -349,6 +391,6 @@ export class LeavePageComponent implements OnInit {
     this.tableHeight =
       tableParentElement == null
         ? '500px'
-        : tableParentElement.clientHeight - 245 + 'px';
+        : tableParentElement.clientHeight - 285 + 'px';
   }
 }

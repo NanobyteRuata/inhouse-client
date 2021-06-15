@@ -147,7 +147,7 @@ export class DashboardPageComponent implements OnInit {
       if (
         this.checkWeekend(this.attendanceResult.date) ||
         this.attendanceResult.holiday ||
-        this.attendanceResult.leave
+        (this.attendanceResult.leave && this.attendanceResult.leave.type == 0)
       ) {
         if (this.attendanceResult.overtime) {
           if (

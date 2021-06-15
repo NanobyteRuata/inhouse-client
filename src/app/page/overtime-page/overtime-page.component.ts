@@ -60,11 +60,11 @@ export class OvertimePageComponent implements OnInit {
     statusIdList.some((statusId) => new Date(item.date).getMonth() == statusId);
   requestedDateFilterFunction = (statusIdList: any[], item: any): boolean =>
     statusIdList.some(
-      (statusId) => new Date(item.created_at).getMonth() == statusId,
+      (statusId) => new Date(item.created_date).getMonth() == statusId,
     );
   reportToFilterList: Employee[] = [];
-  reportToFilterFunction = (statusIdList: any[], item: any): boolean =>
-    statusIdList.some((statusId) => item.report_to.id == statusId);
+  reportToFilterFunction = (statusIdList: any[], item: Overtime): boolean =>
+    statusIdList.some((statusId) => item.request_emp.id == statusId);
   statusFilterList = [
     { text: 'Pending', value: 0 },
     { text: 'Approved', value: 1 },
@@ -212,6 +212,6 @@ export class OvertimePageComponent implements OnInit {
     this.tableHeight =
       tableParentElement == null
         ? '500px'
-        : tableParentElement.clientHeight - 267 + 'px';
+        : tableParentElement.clientHeight - 220 + 'px';
   }
 }

@@ -10,5 +10,5 @@ export class Overtime {
   status: number;
   emp: Employee;
   request_emp: Employee;
-  created_at: number;
+  created_date: number;
 }

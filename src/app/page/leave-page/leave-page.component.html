@@ -25,6 +25,15 @@
         (onChange)="onYearChange($event)"
         type="year"
       ></app-month-year-select-component>
+      <label
+        style="align-self: flex-end; margin: 8px 0"
+        nz-checkbox
+        [(ngModel)]="isRequested"
+        (ngModelChange)="
+          onRequestedChange($event, monthYearSelectComponent.getYear)
+        "
+        >Requested</label
+      >
       <nz-tabset>
         <nz-tab nzTitle="Records">
           <nz-table
@@ -42,6 +51,13 @@
             <thead>
               <tr>
                 <th
+                  *ngIf="isRequested"
+                  [nzFilters]="reportToFilterList"
+                  [nzFilterFn]="reportToFilterFunction"
+                >
+                  Reported from
+                </th>
+                <th
                   nzSortOrder="descend"
                   [nzSortFn]="dateSortFunction"
                   [nzFilters]="dateFilterList"
@@ -56,6 +72,7 @@
                   Leave Type
                 </th>
                 <th
+                  *ngIf="!isRequested"
                   [nzFilters]="reportToFilterList"
                   [nzFilterFn]="reportToFilterFunction"
                 >
@@ -80,25 +97,30 @@
             </thead>
             <tbody>
               <tr *ngFor="let data of leaveTable.data">
+                <td *ngIf="isRequested">
+                  <span>
+                    {{ data.employee.name }}
+                  </span>
+                </td>
                 <td>
                   <span>
-                    {{ showDateAndMonth(data.date) }}
+                    {{ showDateAndMonth(data.leave_date) }}
                   </span>
                 </td>
                 <td>
                   <span>{{
                     data.leave_type.name +
-                      " " +
+                      ' ' +
                       (data.type == 0
-                        ? "(Full)"
+                        ? '(Full)'
                         : data.type == 1
-                        ? "(AM)"
-                        : "(PM)")
+                        ? '(AM)'
+                        : '(PM)')
                   }}</span>
                 </td>
-                <td>
+                <td *ngIf="!isRequested">
                   <span>
-                    {{ data.report_to.name }}
+                    {{ data.supervisor.name }}
                   </span>
                 </td>
                 <td
@@ -116,22 +138,67 @@
                   <span>
                     {{
                       data.status == 0
-                        ? "Pending"
+                        ? 'Pending'
                         : data.status == 1
-                        ? "Approved"
+                        ? 'Approved'
                         : data.status == 2
-                        ? "Rejected"
-                        : "Cancelled"
+                        ? 'Rejected'
+                        : 'Cancelled'
                     }}
                   </span>
                 </td>
                 <td>
                   <span>
-                    {{ showDateAndMonth(data.created_at) }}
+                    {{ showDateAndMonth(data.created_date) }}
                   </span>
                 </td>
                 <td style="text-align: right">
                   <a
+                    *ngIf="
+                      currentUserEmployee.id == data.supervisor.id &&
+                      data.status == 0
+                    "
+                    nz-button
+                    nzType="link"
+                    [nzLoading]="leaveUpdatingId == data.id"
+                    (click)="onLeaveResponseClick(data, false)"
+                    ><i
+                      nz-icon
+                      nz-tooltip
+                      [nzTooltipTitle]="'Reject'"
+                      [ngStyle]="{
+                        color: '#e34850',
+                        'font-size': '12pt'
+                      }"
+                      nzType="close"
+                    ></i
+                  ></a>
+                  <a
+                    *ngIf="
+                      currentUserEmployee.id == data.supervisor.id &&
+                      data.status == 0
+                    "
+                    nz-button
+                    nzType="link"
+                    [nzLoading]="leaveUpdatingId == data.id"
+                    (click)="onLeaveResponseClick(data, true)"
+                    ><i
+                      nz-icon
+                      nz-tooltip
+                      [nzTooltipTitle]="'Approve'"
+                      [ngStyle]="{
+                        color: '#379947',
+                        'font-size': '12pt'
+                      }"
+                      nzType="check"
+                    ></i
+                  ></a>
+                  <a
+                    *ngIf="
+                      (currentUserEmployee.id == data.employee.id &&
+                        data.status == 0) ||
+                      currentUserEmployee.role == 0
+                    "
                     nz-button
                     nzType="link"
                     nz-popconfirm

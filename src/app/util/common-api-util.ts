@@ -9,7 +9,7 @@ export class CommonApiUtil {
     leaveTypeApiService,
     employee: Employee,
     message: NzMessageService,
-    leaveAllowanceList: LeaveAllowance[] = null
+    leaveAllowanceList: LeaveAllowance[] = null,
   ) {
     let tempLeaveAllowanceList = leaveAllowanceList;
     let leaveTypeList = [];
@@ -25,10 +25,11 @@ export class CommonApiUtil {
                 leaveType.valid_at >=
                   new Date(
                     new Date().getTime() -
-                      new Date(employee.joined_date).getTime()
+                      new Date(employee.joined_date).getTime(),
                   ).getMonth() &&
-                leaveAllowanceList.filter((la) => la.leave_type == leaveType)
-                  .length == 0
+                leaveAllowanceList.filter(
+                  (la) => la.leave_type.id == leaveType.id,
+                ).length == 0
               ) {
                 leaveTypeNameList.push(leaveType.name);
               }
@@ -41,7 +42,7 @@ export class CommonApiUtil {
                   '. Please inform admin or HR.',
                 {
                   nzDuration: 5000,
-                }
+                },
               );
             }
           } else {
@@ -50,7 +51,7 @@ export class CommonApiUtil {
         },
         (err) => {
           message.error(err.message);
-        }
+        },
       );
     };
 
@@ -68,7 +69,7 @@ export class CommonApiUtil {
         },
         (err) => {
           message.error(err.message);
-        }
+        },
       );
     }
   }

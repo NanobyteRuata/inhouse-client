@@ -30,8 +30,6 @@ export class NewLeaveDialogComponent implements OnInit {
   @Output() onNewCreate = new EventEmitter();
   @Output() isNewLeaveModalVisibleChange = new EventEmitter();
 
-  newLeave: Leave;
-
   isNewLeaveModalLoading: boolean = false;
   isNewLeaveEmployeeSelectLoading: boolean = false;
   isNewLeaveLeaveTypeSelectLoading: boolean = false;
@@ -40,7 +38,7 @@ export class NewLeaveDialogComponent implements OnInit {
   newLeaveEmployeeValue: Employee = null;
   newLeaveEmployeeOptions: Employee[];
 
-  newLeaveLeaveTypeValue: number = null;
+  newLeaveLeaveTypeValue: LeaveType = null;
   newLeaveLeaveTypeOptions: LeaveType[];
 
   newLeaveStatusValue: number = 0;
@@ -62,7 +60,7 @@ export class NewLeaveDialogComponent implements OnInit {
     private message: NzMessageService,
     private _supervisorApiService: SupervisorApiService,
     private _leaveAllowanceApiService: LeaveAllowanceApiService,
-    private _leaveApiService: LeaveApiService
+    private _leaveApiService: LeaveApiService,
   ) {}
 
   ngOnInit(): void {}
@@ -137,7 +135,7 @@ export class NewLeaveDialogComponent implements OnInit {
       (err) => {
         this.message.create('error', err.message);
         this.isNewLeaveLeaveTypeSelectLoading = false;
-      }
+      },
     );
   }
 
@@ -159,12 +157,16 @@ export class NewLeaveDialogComponent implements OnInit {
   onNewLeaveSubmit() {
     this.isNewLeaveModalLoading = true;
 
-    let subscription =
-      this.newLeave.emp.id == this.currentUserEmployee.id
-        ? this._leaveApiService.requestLeave(this.newLeave)
-        : this._leaveApiService.saveLeave(this.newLeave);
+    let requestBody: any = {};
+    requestBody['supervisor_id'] = this.newLeaveReportToValue.id;
+    requestBody['leave_type_id'] = this.newLeaveLeaveTypeValue.id;
+    requestBody['from_date'] = this.newLeaveFromDateValue;
+    requestBody['from_type'] = this.newLeaveFromTypeValue;
+    requestBody['to_date'] = this.newLeaveToDateValue;
+    requestBody['to_type'] = this.newLeaveToTypeValue;
+    requestBody['status'] = this.newLeaveStatusValue;
 
-    subscription.subscribe(
+    this._leaveApiService.requestLeave(requestBody).subscribe(
       (response: Response) => {
         if (response.success) {
           this.message.success(response.message);
@@ -178,7 +180,7 @@ export class NewLeaveDialogComponent implements OnInit {
       (err) => {
         this.message.error(err.message);
         this.isNewLeaveModalLoading = false;
-      }
+      },
     );
   }
 }
