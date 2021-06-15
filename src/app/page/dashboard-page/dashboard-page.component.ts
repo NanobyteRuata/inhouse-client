@@ -19,6 +19,8 @@ import { EncryptionUtil } from 'src/app/util/encryption-util';
   styleUrls: ['./dashboard-page.component.scss'],
 })
 export class DashboardPageComponent implements OnInit {
+  now = new Date();
+
   isCheckinButtonLoading = false;
   checkinButtonLabelId = 0;
 

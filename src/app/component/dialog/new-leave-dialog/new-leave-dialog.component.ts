@@ -119,24 +119,27 @@ export class NewLeaveDialogComponent implements OnInit {
 
     // Get available Leave Types
     this.isNewLeaveLeaveTypeSelectLoading = true;
-    this._leaveAllowanceApiService.getAll(value.id).subscribe(
-      (response: Response) => {
-        if (response.success) {
-          let tempLeaveTypeOptions: LeaveType[] = [];
-          for (let leaveAllowance of response.result) {
-            tempLeaveTypeOptions.push(leaveAllowance.leave_type);
+    this._leaveAllowanceApiService
+      .getAll(value.id, new Date().getFullYear())
+      .subscribe(
+        (response: Response) => {
+          if (response.success) {
+            let tempLeaveTypeOptions: LeaveType[] = [];
+            for (let leaveAllowance of response.result) {
+              tempLeaveTypeOptions.push(leaveAllowance.leave_type);
+            }
+            this.newLeaveLeaveTypeOptions = tempLeaveTypeOptions;
+            console.log(this.newLeaveLeaveTypeOptions);
+          } else {
+            this.message.create('error', response.message);
           }
-          this.newLeaveLeaveTypeOptions = tempLeaveTypeOptions;
-        } else {
-          this.message.create('error', response.message);
-        }
-        this.isNewLeaveLeaveTypeSelectLoading = false;
-      },
-      (err) => {
-        this.message.create('error', err.message);
-        this.isNewLeaveLeaveTypeSelectLoading = false;
-      },
-    );
+          this.isNewLeaveLeaveTypeSelectLoading = false;
+        },
+        (err) => {
+          this.message.create('error', err.message);
+          this.isNewLeaveLeaveTypeSelectLoading = false;
+        },
+      );
   }
 
   get isNewLeaveSubmitDisabled() {

@@ -25,5 +25,80 @@
       </button>
     </div>
   </div>
-  <div></div>
+  <div>
+    <div class="flex-row">
+      <div style="flex: 1"></div>
+      <div
+        style="
+          display: flex;
+          flex-direction: column;
+          margin: 4px;
+          padding: 8px;
+          border: solid 1px gray;
+        "
+      >
+        <div style="margin-bottom: 4px">
+          <span style="font-size: 10pt; color: gray">Date:</span>
+          {{ now | date: 'fullDate' }}
+        </div>
+        <div
+          *ngIf="attendanceResult && attendanceResult.holiday"
+          style="margin-bottom: 4px"
+        >
+          <span style="font-size: 10pt; color: gray">Holiday:</span>
+          {{ attendanceResult.holiday.name }}
+        </div>
+        <div
+          *ngIf="
+            attendanceResult &&
+            attendanceResult.leave &&
+            attendanceResult.leave.status == 1
+          "
+          style="margin-bottom: 4px"
+        >
+          <span style="font-size: 10pt; color: gray">Leave:</span>
+          {{
+            attendanceResult.leave.leave_type.name +
+              '(' +
+              (attendanceResult.leave.type == 0
+                ? 'Full Day'
+                : attendanceResult.leave.type == 1
+                ? 'AM'
+                : 'PM') +
+              ')'
+          }}
+        </div>
+        <div
+          style="
+            margin: 8px 0 12px 0;
+            border-top: solid 0.5px gray;
+            align-self: stretch;
+          "
+        ></div>
+        <div class="flex-row">
+          <div style="display: flex; flex-direction: column; margin-right: 8px">
+            <span style="font-size: 10pt; color: gray">Check In Time</span>
+            <span style="font-size: 20pt">{{
+              attendanceResult && attendanceResult.attendance
+                ? (attendanceResult.attendance.check_in_time
+                  | date: 'shortTime')
+                : '--:--'
+            }}</span>
+          </div>
+          <span style="height: 100%; border-left: solid 0.5px gray"></span>
+          <div style="display: flex; flex-direction: column; margin-left: 8px">
+            <span style="font-size: 10pt; color: gray">Check Out Time</span>
+            <span style="font-size: 20pt">{{
+              attendanceResult &&
+              attendanceResult.attendance &&
+              attendanceResult.attendance.check_out_time
+                ? (attendanceResult.attendance.check_out_time
+                  | date: 'shortTime')
+                : '--:--'
+            }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
 </div>

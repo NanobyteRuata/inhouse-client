@@ -226,36 +226,39 @@ export class EmployeePageComponent implements OnInit {
           this.departments = this.departments.filter(
             (dep) => dep.id != this.selectedEmployee.department.id,
           );
-          this.selectedEmployee.department = this.replaceDepartment;
 
           // update employee search components
           if (
             this.employeeSearchComponent1.selectedDepartmentId ==
-            response.result.id
+            this.selectedEmployee.department.id
           ) {
             this.employeeSearchComponent1.selectedDepartmentId =
               this.replaceDepartment.id;
           }
           this.employeeSearchComponent1.departments =
             this.employeeSearchComponent1.departments.filter(
-              (dep) => dep.id != response.result.id,
+              (dep) => dep.id != this.selectedEmployee.department.id,
             );
           this.employeeSearchComponent1.employees
-            .filter((emp) => emp.department.id == response.result.id)
+            .filter(
+              (emp) => emp.department.id == this.selectedEmployee.department.id,
+            )
             .forEach((emp) => (emp.department = this.replaceDepartment));
           if (
             this.employeeSearchComponent2.selectedDepartmentId ==
-            response.result.id
+            this.selectedEmployee.department.id
           ) {
             this.employeeSearchComponent2.selectedDepartmentId =
               this.replaceDepartment.id;
           }
           this.employeeSearchComponent2.departments =
             this.employeeSearchComponent2.departments.filter(
-              (dep) => dep.id != response.result.id,
+              (dep) => dep.id != this.selectedEmployee.department.id,
             );
           this.employeeSearchComponent2.employees
-            .filter((emp) => emp.department.id == response.result.id)
+            .filter(
+              (emp) => emp.department.id == this.selectedEmployee.department.id,
+            )
             .forEach((emp) => (emp.department = this.replaceDepartment));
 
           if (this.currentUserEmployee.id == this.selectedEmployee.id) {
@@ -265,6 +268,7 @@ export class EmployeePageComponent implements OnInit {
               JSON.stringify(this.selectedEmployee),
             );
           }
+          this.selectedEmployee.department = this.replaceDepartment;
 
           //show message
           this.message.create('success', response.message);
