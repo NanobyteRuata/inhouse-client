@@ -232,7 +232,9 @@ export class LeavePageComponent implements OnInit {
           this.leaveTypeFilterList = tempLeaveTypesFilterList;
           this.isLeaveAllowanceTableLoading = false;
 
-          this.checkLeaveAllowanceUpdate(this.leaveAllowanceList);
+          if (year == new Date().getFullYear()) {
+            this.checkLeaveAllowanceUpdate(this.leaveAllowanceList);
+          }
         } else {
           this.message.error(response.message);
         }

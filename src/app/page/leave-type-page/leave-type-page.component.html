@@ -30,7 +30,12 @@
           <th>Name</th>
           <th>Leave Days</th>
           <th>Valid At</th>
-          <th style="text-align: right" *ngIf="isCurrentYear">Action</th>
+          <th
+            style="text-align: right"
+            *ngIf="isCurrentYear && 1 > currentUserEmployee.role"
+          >
+            Action
+          </th>
         </tr>
       </thead>
       <tbody>
@@ -76,7 +81,10 @@
               [nzStep]="1"
             ></nz-input-number>
           </td>
-          <td style="text-align: right" *ngIf="isCurrentYear">
+          <td
+            style="text-align: right"
+            *ngIf="isCurrentYear && 1 > currentUserEmployee.role"
+          >
             <a
               *ngIf="editingLeaveType && editingLeaveType.id == data.id"
               nz-button
@@ -151,7 +159,7 @@
             ></a>
           </td>
         </tr>
-        <tr *ngIf="isCurrentYear">
+        <tr *ngIf="isCurrentYear && 1 > currentUserEmployee.role">
           <td>
             <input
               *ngIf="editingLeaveType && editingLeaveType.id == null"

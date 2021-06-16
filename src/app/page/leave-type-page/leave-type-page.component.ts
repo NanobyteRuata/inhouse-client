@@ -1,10 +1,12 @@
 import { Component, OnInit } from '@angular/core';
 import { NzMessageService } from 'ng-zorro-antd/message';
 import { NzTableComponent } from 'ng-zorro-antd/table';
+import { Employee } from 'src/app/model/employee-model';
 import { LeaveType } from 'src/app/model/leave-type-model';
 import { Response } from 'src/app/model/response-model';
 import { LeaveTypeApiService } from 'src/app/service/leave-type-api.service';
 import { CloneUtil } from 'src/app/util/clone-util';
+import { EncryptionUtil } from 'src/app/util/encryption-util';
 
 @Component({
   selector: 'app-leave-type-page',
@@ -18,6 +20,7 @@ export class LeaveTypePageComponent implements OnInit {
   isLeaveTypeTableLoading = false;
   leaveTypeDataLength = 0;
   isCurrentYear: boolean = true;
+  currentUserEmployee: Employee;
 
   editingLeaveType: LeaveType;
   isLeaveTypeSaveLoading: boolean = false;
@@ -30,6 +33,15 @@ export class LeaveTypePageComponent implements OnInit {
 
   ngOnInit(): void {
     this.getLeaveTypes(new Date().getFullYear());
+    this.initializeCurrentUser();
+  }
+  // get current user data from localStorage
+  initializeCurrentUser(): void {
+    let currentUserDataJsonString = localStorage.getItem('current_employee');
+    let decryptedUserData = EncryptionUtil.decryptData(
+      currentUserDataJsonString,
+    );
+    this.currentUserEmployee = decryptedUserData;
   }
 
   getLeaveTypes(year: number) {
@@ -42,7 +54,6 @@ export class LeaveTypePageComponent implements OnInit {
       (response: Response) => {
         if (response.success) {
           this.leaveTypeList = response.result;
-          this._message.create('success', response.message);
         } else {
           this._message.create('error', response.message);
         }

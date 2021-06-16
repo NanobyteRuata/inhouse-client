@@ -1,6 +1,7 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, ElementRef, OnInit } from '@angular/core';
 import { NzMessageService } from 'ng-zorro-antd/message';
 import { AttendanceResult } from 'src/app/model/attendance-result-model';
+import { Department } from 'src/app/model/department-model';
 import { Employee } from 'src/app/model/employee-model';
 import { LeaveAllowance } from 'src/app/model/leave-allowance-model';
 import { LeaveType } from 'src/app/model/leave-type-model';
@@ -23,9 +24,51 @@ export class DashboardPageComponent implements OnInit {
 
   isCheckinButtonLoading = false;
   checkinButtonLabelId = 0;
+  isNewLeaveModalVisible = false;
+  isNewOvertimeModalVisible = false;
 
   currentUserEmployee: Employee;
   attendanceResult: AttendanceResult;
+  attendanceResultList: AttendanceResult[] = [];
+
+  tableHeight = '500px';
+  departmentFilterList: any[] = [];
+  departmentFilterFunction = (
+    departmentIdList: any[],
+    attendanceResultItem: AttendanceResult,
+  ): boolean =>
+    departmentIdList.some(
+      (departmentId) =>
+        attendanceResultItem.employee.department.id == departmentId,
+    );
+  attendanceFilterList: any[] = [
+    {
+      text: 'Not Checked in',
+      value: 0,
+    },
+    {
+      text: 'Late Check in',
+      value: 1,
+    },
+  ];
+  attendanceFilterFunction = (
+    attendanceIdList: any[],
+    attendanceResultItem: AttendanceResult,
+  ): boolean =>
+    attendanceIdList.some((attendanceId) =>
+      attendanceId == 0
+        ? attendanceResultItem.attendance == null
+        : attendanceResultItem.attendance &&
+          DateUtil.compareDateTimes(
+            attendanceResultItem.attendance.check_in_time,
+            new Date(
+              new Date().getFullYear(),
+              new Date().getMonth(),
+              new Date().getDate(),
+              8,
+            ).getTime(),
+          ) < 0,
+    );
 
   checkWeekend = DateUtil.checkWeekend;
 
@@ -44,7 +87,7 @@ export class DashboardPageComponent implements OnInit {
   initialize() {
     //TODO: implement apis necessary for startup
     this.initializeCurrentUser();
-    this.getAttendanceResultForCurrentUser();
+    this.getAttendanceResults();
   }
 
   initializeCurrentUser(): void {
@@ -62,21 +105,36 @@ export class DashboardPageComponent implements OnInit {
     );
   }
 
-  getAttendanceResultForCurrentUser() {
+  getAttendanceResults() {
     this.isCheckinButtonLoading = true;
 
     // TODO: get API
     this.attendanceApiService
-      .getAttendance(
-        this.currentUserEmployee.id,
-        null,
-        null,
-        new Date().getTime(),
-      )
+      .getAttendance(null, null, null, new Date().getTime())
       .subscribe(
         (response: Response) => {
           if (response.success) {
-            this.attendanceResult = response.result;
+            this.attendanceResultList = response.result;
+            this.attendanceResult = response.result.find(
+              (ar) => ar.employee.id == this.currentUserEmployee.id,
+            );
+
+            let tempDepartmentFilterList = [];
+            for (let tempAttendanceResult of response.result) {
+              if (
+                tempDepartmentFilterList.filter(
+                  (tempDepartmentFilterItem) =>
+                    tempDepartmentFilterItem.value ==
+                    tempAttendanceResult.employee.department.id,
+                ).length == 0
+              ) {
+                tempDepartmentFilterList.push({
+                  text: tempAttendanceResult.employee.department.name,
+                  value: tempAttendanceResult.employee.department.id,
+                });
+              }
+            }
+            this.departmentFilterList = tempDepartmentFilterList;
           } else {
             this.message.create(
               'error',
@@ -137,6 +195,16 @@ export class DashboardPageComponent implements OnInit {
         this.isCheckinButtonLoading = false;
       },
     );
+  }
+
+  // ng zorro table is designed to have fixed width and height
+  // if we want it to become scrollable
+  // but we needed the height to change according to browser window resize
+  calculateTableHeight(dashboardBody: ElementRef): void {
+    this.tableHeight =
+      dashboardBody == null
+        ? '500px'
+        : dashboardBody.nativeElement.clientHeight + 'px';
   }
 
   // 0 = checkin

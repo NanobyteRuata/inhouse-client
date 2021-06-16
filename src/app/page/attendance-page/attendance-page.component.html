@@ -49,7 +49,7 @@
             >
               Remarks
             </th>
-            <th></th>
+            <th *ngIf="2 > currentUserEmployee.role"></th>
           </tr>
         </thead>
         <tbody>
@@ -228,7 +228,7 @@
                 nzType="clock-circle"
               ></i>
             </td>
-            <td style="text-align: right">
+            <td style="text-align: right" *ngIf="2 > currentUserEmployee.role">
               <a
                 *ngIf="
                   data.date != editDate &&
