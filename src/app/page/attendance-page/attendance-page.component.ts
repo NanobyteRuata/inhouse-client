@@ -148,9 +148,8 @@ export class AttendancePageComponent implements OnInit {
   //TODO: implement real get attendance api
   getAttendance(employee_id: number, month: number, year: number): void {
     this.isAttendanceTableLoading = true;
-    this.attendanceApiService
-      .getAttendance(employee_id, month, year)
-      .subscribe((response: Response) => {
+    this.attendanceApiService.getAttendance(employee_id, month, year).subscribe(
+      (response: Response) => {
         if (response.success) {
           this.attendanceResultList = response.result;
         } else {
@@ -158,7 +157,12 @@ export class AttendancePageComponent implements OnInit {
           this.message.create('error', response.message);
         }
         this.isAttendanceTableLoading = false;
-      });
+      },
+      (err) => {
+        this.message.create('error', err.error.message);
+        this.isUpdateLoading = false;
+      },
+    );
   }
 
   startEdit(data: AttendanceResult): void {
@@ -197,21 +201,26 @@ export class AttendancePageComponent implements OnInit {
           check_in_time: this.editAttendance.check_in_time,
           check_out_time: this.editAttendance.check_out_time,
         })
-        .subscribe((response: Response) => {
-          if (response.success) {
-            data.attendance = response.result;
-            this.message.create('success', response.message);
-            this.editAttendance = null;
-            this.editDate = null;
-          } else {
-            this.message.create('error', response.message);
-          }
-          this.isUpdateLoading = false;
-        });
+        .subscribe(
+          (response: Response) => {
+            if (response.success) {
+              data.attendance = response.result;
+              this.message.create('success', response.message);
+              this.editAttendance = null;
+              this.editDate = null;
+            } else {
+              this.message.create('error', response.message);
+            }
+            this.isUpdateLoading = false;
+          },
+          (err) => {
+            this.message.create('error', err.error.message);
+            this.isUpdateLoading = false;
+          },
+        );
     } else {
-      this.attendanceApiService
-        .updateAttendance(this.editAttendance)
-        .subscribe((response: Response) => {
+      this.attendanceApiService.updateAttendance(this.editAttendance).subscribe(
+        (response: Response) => {
           if (response.success) {
             data.attendance = response.result;
             this.message.create('success', response.message);
@@ -221,7 +230,13 @@ export class AttendancePageComponent implements OnInit {
             this.message.create('error', response.message);
           }
           this.isUpdateLoading = false;
-        });
+        },
+        (err) => {
+          console.log(err);
+          this.message.create('error', err.error.message);
+          this.isUpdateLoading = false;
+        },
+      );
     }
   }
 
@@ -229,9 +244,8 @@ export class AttendancePageComponent implements OnInit {
   deleteAttendance(data: any): void {
     this.isDeleteAttendanceLoading = true;
     this.editDate = data.date;
-    this.attendanceApiService
-      .deleteAttendance(data.attendance.id)
-      .subscribe((response: Response) => {
+    this.attendanceApiService.deleteAttendance(data.attendance.id).subscribe(
+      (response: Response) => {
         if (response.success) {
           delete this.attendanceResultList.filter(
             (att) => DateUtil.compareDates(att.date, data.date) == 0,
@@ -242,7 +256,12 @@ export class AttendancePageComponent implements OnInit {
         }
         this.editDate = null;
         this.isDeleteAttendanceLoading = false;
-      });
+      },
+      (err) => {
+        this.message.create('error', err.error.message);
+        this.isUpdateLoading = false;
+      },
+    );
   }
 
   onMonthChange(event: any): void {
@@ -297,9 +316,8 @@ export class AttendancePageComponent implements OnInit {
 
     this.isCreateHolidayLoading = true;
 
-    this.holidayApiService
-      .createHoliday(this.editHoliday)
-      .subscribe((response: Response) => {
+    this.holidayApiService.createHoliday(this.editHoliday).subscribe(
+      (response: Response) => {
         if (response.success) {
           this.attendanceResultList.filter(
             (att) => DateUtil.compareDates(att.date, response.result.date) == 0,
@@ -310,15 +328,19 @@ export class AttendancePageComponent implements OnInit {
           this.message.create('error', response.message);
         }
         this.isCreateHolidayLoading = false;
-      });
+      },
+      (err) => {
+        this.message.create('error', err.error.message);
+        this.isUpdateLoading = false;
+      },
+    );
   }
 
   onDeleteHoliday(attendanceResult: AttendanceResult): void {
     this.isCreateHolidayLoading = true;
 
-    this.holidayApiService
-      .deleteHoliday(attendanceResult.holiday.id)
-      .subscribe((response: Response) => {
+    this.holidayApiService.deleteHoliday(attendanceResult.holiday.id).subscribe(
+      (response: Response) => {
         if (response.success) {
           this.attendanceResultList.find(
             (att) =>
@@ -330,7 +352,12 @@ export class AttendancePageComponent implements OnInit {
           this.message.create('error', response.message);
         }
         this.isCreateHolidayLoading = false;
-      });
+      },
+      (err) => {
+        this.message.create('error', err.error.message);
+        this.isUpdateLoading = false;
+      },
+    );
   }
 
   onDateColumnMouseEnter(data: AttendanceResult): void {
