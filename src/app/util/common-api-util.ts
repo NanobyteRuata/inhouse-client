@@ -46,11 +46,13 @@ export class CommonApiUtil {
               );
             }
           } else {
+            console.log(rsp);
             message.error(rsp.message);
           }
         },
         (err) => {
-          message.error(err.message);
+          console.log(err);
+          message.error(err.error.message);
         },
       );
     };
@@ -64,11 +66,13 @@ export class CommonApiUtil {
             leaveAllowanceList = response.result;
             checkWithLeaveType();
           } else {
+            console.log(response);
             message.error(response.message);
           }
         },
         (err) => {
-          message.error(err.message);
+          console.log(err);
+          message.error(err.error.message);
         },
       );
     }

@@ -52,9 +52,6 @@ export class EmployeeApiService {
   }
 
   uploadImage(id: number, data: any) {
-    return this.http.put(
-      `${ApiConstants.BASE_URL}employee/${id}/upload-image`,
-      data,
-    );
+    return this.baseApiService.formPut(`employee/${id}/upload-image`, data);
   }
 }

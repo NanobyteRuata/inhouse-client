@@ -293,6 +293,9 @@ export class EmployeePageComponent implements OnInit {
       .subscribe((response: Response) => {
         if (response.success) {
           this.message.create('success', response.message);
+          this.oldPassword = '';
+          this.newPassword = '';
+          this.confirmPassword = '';
           this.isChangePasswordModalVisible = false;
         } else {
           this.message.create('error', response.message);
@@ -533,8 +536,10 @@ export class EmployeePageComponent implements OnInit {
           this.isCreateEmployeeLoading = false;
         });
     } else {
+      let copyEmployee = CloneUtil.clone(this.selectedEmployee);
+      delete copyEmployee.image_url;
       this.employeeApiService
-        .updateEmployee(this.selectedEmployee)
+        .updateEmployee(copyEmployee)
         .subscribe((response: Response) => {
           if (response.success) {
             this.employeeCreateUpdateOnSuccess(response);

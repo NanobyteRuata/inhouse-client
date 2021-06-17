@@ -136,7 +136,7 @@ export class NewLeaveDialogComponent implements OnInit {
           this.isNewLeaveLeaveTypeSelectLoading = false;
         },
         (err) => {
-          this.message.create('error', err.message);
+          this.message.create('error', err.error.message);
           this.isNewLeaveLeaveTypeSelectLoading = false;
         },
       );
@@ -181,7 +181,7 @@ export class NewLeaveDialogComponent implements OnInit {
         this.isNewLeaveModalLoading = false;
       },
       (err) => {
-        this.message.error(err.message);
+        this.message.error(err.error.message);
         this.isNewLeaveModalLoading = false;
       },
     );

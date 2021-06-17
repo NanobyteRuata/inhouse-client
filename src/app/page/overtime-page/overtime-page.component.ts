@@ -62,8 +62,11 @@ export class OvertimePageComponent implements OnInit {
     statusIdList.some(
       (statusId) => new Date(item.created_date).getMonth() == statusId,
     );
-  reportToFilterList: Employee[] = [];
+  reportToFilterList = [];
+  reportFromFilterList = [];
   reportToFilterFunction = (statusIdList: any[], item: Overtime): boolean =>
+    statusIdList.some((statusId) => item.request_emp.id == statusId);
+  reportFromFilterFunction = (statusIdList: any[], item: Overtime): boolean =>
     statusIdList.some((statusId) => item.request_emp.id == statusId);
   statusFilterList = [
     { text: 'Pending', value: 0 },
@@ -82,17 +85,19 @@ export class OvertimePageComponent implements OnInit {
 
   ngOnInit(): void {
     this.initializeCurrentUser();
-    let waitComponentToLoadInterval = setInterval(() => {
-      if (this.employeeSearchComponent1 != null) {
-        // set current employee in employeeSearch component on left panel
-        this.employeeSearchComponent1.employees = [this.currentUserEmployee];
-        this.employeeSearchComponent1.selectedEmployee =
-          this.currentUserEmployee;
+    if (this.currentUserEmployee.role < 2) {
+      let waitComponentToLoadInterval = setInterval(() => {
+        if (this.employeeSearchComponent1 != null) {
+          // set current employee in employeeSearch component on left panel
+          this.employeeSearchComponent1.employees = [this.currentUserEmployee];
+          this.employeeSearchComponent1.selectedEmployee =
+            this.currentUserEmployee;
 
-        this.onSelectEmployee(this.currentUserEmployee);
-        clearInterval(waitComponentToLoadInterval);
-      }
-    }, 500);
+          this.onSelectEmployee(this.currentUserEmployee);
+          clearInterval(waitComponentToLoadInterval);
+        }
+      }, 500);
+    }
   }
 
   initializeCurrentUser(): void {
@@ -119,6 +124,7 @@ export class OvertimePageComponent implements OnInit {
 
   getOvertime(emp_id: number, year: number) {
     this.isOvertimeTableLoading = true;
+    let tempReportToFilterList = [];
 
     this._overtimeApiService
       .getOvertime(emp_id, year, this.isRequested)
@@ -126,13 +132,34 @@ export class OvertimePageComponent implements OnInit {
         (response: Response) => {
           if (response.success) {
             this.overtimeList = response.result;
+            for (let tempLeave of response.result as Overtime[]) {
+              if (
+                tempReportToFilterList.filter((tempReportTo) =>
+                  tempReportTo.value == this.isRequested
+                    ? tempLeave.emp.id
+                    : tempLeave.request_emp.id,
+                ).length == 0
+              ) {
+                tempReportToFilterList.push({
+                  text: this.isRequested
+                    ? tempLeave.emp.name
+                    : tempLeave.request_emp.name,
+                  value: this.isRequested
+                    ? tempLeave.emp.id
+                    : tempLeave.request_emp.id,
+                });
+              }
+            }
+            this.isRequested
+              ? (this.reportFromFilterList = tempReportToFilterList)
+              : (this.reportToFilterList = tempReportToFilterList);
           } else {
             this._message.error(response.message);
           }
           this.isOvertimeTableLoading = false;
         },
         (err) => {
-          this._message.error(err.message);
+          this._message.error(err.error.message);
           this.isOvertimeTableLoading = false;
         },
       );

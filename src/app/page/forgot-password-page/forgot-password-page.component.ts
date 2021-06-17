@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { Router } from '@angular/router';
 import { NzMessageService } from 'ng-zorro-antd/message';
 import { Response } from 'src/app/model/response-model';
 import { AuthApiService } from 'src/app/service/auth-api.service';
@@ -20,7 +21,8 @@ export class ForgotPasswordPageComponent implements OnInit {
 
   constructor(
     private authApiService: AuthApiService,
-    private message: NzMessageService
+    private message: NzMessageService,
+    private router: Router,
   ) {}
 
   ngOnInit(): void {}
@@ -53,7 +55,7 @@ export class ForgotPasswordPageComponent implements OnInit {
             }
             this.isLoading = false;
           },
-          (error) => this.showErrorMessageFromApi(error)
+          (error) => this.showErrorMessageFromApi(error),
         );
         break;
       }
@@ -74,7 +76,10 @@ export class ForgotPasswordPageComponent implements OnInit {
               }
               this.isLoading = false;
             },
-            (error) => this.showErrorMessageFromApi(error)
+            (error) => {
+              console.log(error);
+              this.showErrorMessageFromApi(error);
+            },
           );
         break;
       }
@@ -91,12 +96,13 @@ export class ForgotPasswordPageComponent implements OnInit {
                 this.newPassword = '';
                 this.confirmPassword = '';
                 this.message.create('success', response.message);
+                this.router.navigateByUrl('/login');
               } else {
                 this.showErrorMessageFromApi(response);
               }
               this.isLoading = false;
             },
-            (error) => this.showErrorMessageFromApi(error)
+            (error) => this.showErrorMessageFromApi(error),
           );
         break;
       }
@@ -106,7 +112,14 @@ export class ForgotPasswordPageComponent implements OnInit {
   }
 
   showErrorMessageFromApi(error: any) {
-    this.message.create('error', error.message ? error.message : error);
+    this.message.create(
+      'error',
+      error.error && error.error.message
+        ? error.error.message
+        : error.message
+        ? error.message
+        : error,
+    );
     this.isLoading = false;
   }
 
@@ -116,7 +129,7 @@ export class ForgotPasswordPageComponent implements OnInit {
       return false;
     }
     let emailRegExp = new RegExp(
-      /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
+      /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/,
     );
     if (!emailRegExp.test(this.email)) {
       this.message.create('error', 'Email is invalid!');

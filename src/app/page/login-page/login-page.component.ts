@@ -20,7 +20,7 @@ export class LoginPageComponent implements OnInit {
   constructor(
     private router: Router,
     private message: NzMessageService,
-    private authApiService: AuthApiService
+    private authApiService: AuthApiService,
   ) {}
 
   ngOnInit(): void {}
@@ -33,15 +33,15 @@ export class LoginPageComponent implements OnInit {
       (response: Response) => {
         if (response.success) {
           let encryptedUserDataJsonString = EncryptionUtil.encryptData(
-            JSON.stringify(response.result.data as Employee)
+            JSON.stringify(response.result.data as Employee),
           );
           let encryptedToken = EncryptionUtil.encryptData(
-            JSON.stringify(response.result.token)
+            JSON.stringify(response.result.token),
           );
           if (encryptedUserDataJsonString == null || encryptedToken == null) {
             this.message.create(
               'error',
-              'Something went wrong encrypting user session. Please contact the developer.'
+              'Something went wrong encrypting user session. Please contact the developer.',
             );
             return;
           }
@@ -55,9 +55,9 @@ export class LoginPageComponent implements OnInit {
         this.isLoading = false;
       },
       (err) => {
-        this.message.create('error', err.message);
+        this.message.create('error', err.error.message);
         this.isLoading = false;
-      }
+      },
     );
   }
 

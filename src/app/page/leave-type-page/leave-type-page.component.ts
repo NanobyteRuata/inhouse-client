@@ -60,7 +60,7 @@ export class LeaveTypePageComponent implements OnInit {
         this.isLeaveTypeTableLoading = false;
       },
       (err) => {
-        this._message.create('error', err.message);
+        this._message.create('error', err.error.message);
         this.isLeaveTypeTableLoading = false;
       },
     );
@@ -118,7 +118,7 @@ export class LeaveTypePageComponent implements OnInit {
       },
       (err) => {
         console.log(err);
-        this._message.create('error', err.message);
+        this._message.create('error', err.error.message);
         this.isLeaveTypeSaveLoading = false;
       },
     );
@@ -141,7 +141,7 @@ export class LeaveTypePageComponent implements OnInit {
         this.isLeaveTypeDeleteLoading = false;
       },
       (err) => {
-        this._message.create('error', err.message);
+        this._message.create('error', err.error.message);
         this.isLeaveTypeDeleteLoading = false;
         this.editingLeaveType = null;
       },

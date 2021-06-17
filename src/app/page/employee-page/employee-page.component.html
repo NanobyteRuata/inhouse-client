@@ -36,7 +36,18 @@
           [nzShowUploadList]="false"
           [nzBeforeUpload]="beforeUpload"
         >
-          <button nz-button [nzLoading]="isImageUploadLoading">
+          <button
+            nz-button
+            [nzLoading]="isImageUploadLoading"
+            [disabled]="
+              !(
+                selectedEmployee.id != null &&
+                (1 > currentUserEmployee.role ||
+                  (currentUserEmployee.role > 1 &&
+                    currentUserEmployee.id == selectedEmployee.id))
+              )
+            "
+          >
             <i nz-icon nzType="upload"></i>Click to Upload
           </button>
         </nz-upload>
@@ -211,7 +222,8 @@
             <button
               *ngIf="
                 currentUserEmployee.role != 2 &&
-                currentUserEmployee.id != selectedEmployee.id
+                currentUserEmployee.id != selectedEmployee.id &&
+                selectedEmployee.id != null
               "
               style="margin-right: 4px"
               nz-button
@@ -323,7 +335,7 @@
                 padding: 8px;
               "
             >
-              <h3>Supervisors</h3>
+              <h3 style="margin-bottom: 8px">Report to</h3>
               <div
                 class="supervisors-list-body"
                 style="flex: 1; overflow: auto"
@@ -360,7 +372,10 @@
                 nz-button
                 nzType="primary"
                 nzSize="large"
-                [disabled]="selectedExistingSupervisor == null"
+                [disabled]="
+                  selectedExistingSupervisor == null ||
+                  selectedEmployee.id == null
+                "
                 nzDanger
                 [nzLoading]="isSupervisorRemoveLoading"
                 (click)="onRemoveSupervisor()"
@@ -371,7 +386,9 @@
                 nz-button
                 nzType="primary"
                 nzSize="large"
-                [disabled]="selectedSupervisor == null"
+                [disabled]="
+                  selectedSupervisor == null || selectedEmployee.id == null
+                "
                 [nzLoading]="isSupervisorAddLoading"
                 (click)="onAddSupervisor()"
               >

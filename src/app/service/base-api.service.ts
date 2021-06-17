@@ -7,7 +7,7 @@ import { EncryptionUtil } from '../util/encryption-util';
   providedIn: 'root',
 })
 export class BaseApiService {
-  get headers() {
+  getHeaders() {
     let encryptedAuthToken = localStorage.getItem('auth_token');
     let authToken = EncryptionUtil.decryptData(encryptedAuthToken);
     let basicHeaders: any = {
@@ -25,25 +25,35 @@ export class BaseApiService {
 
   public get(url: string) {
     return this.http.get(ApiConstants.BASE_URL + url, {
-      headers: this.headers,
+      headers: this.getHeaders(),
     });
   }
 
   public post(url: string, body: any) {
     return this.http.post(ApiConstants.BASE_URL + url, body, {
-      headers: this.headers,
+      headers: this.getHeaders(),
     });
   }
 
   public put(url: string, body: any) {
     return this.http.put(ApiConstants.BASE_URL + url, body, {
-      headers: this.headers,
+      headers: this.getHeaders(),
+    });
+  }
+
+  public formPut(url: string, body: any) {
+    return this.http.put(ApiConstants.BASE_URL + url, body, {
+      headers: {
+        Authorization:
+          'Token ' +
+          EncryptionUtil.decryptData(localStorage.getItem('auth_token')),
+      },
     });
   }
 
   public delete(url: string) {
     return this.http.delete(ApiConstants.BASE_URL + url, {
-      headers: this.headers,
+      headers: this.getHeaders(),
     });
   }
 }

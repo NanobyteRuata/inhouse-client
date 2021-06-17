@@ -146,7 +146,7 @@ export class DashboardPageComponent implements OnInit {
         (err) => {
           this.message.create(
             'error',
-            err.message ? err.message : err.toString(),
+            err.error.message ? err.error.message : err.toString(),
           );
           this.isCheckinButtonLoading = false;
         },
@@ -190,7 +190,7 @@ export class DashboardPageComponent implements OnInit {
       (err) => {
         this.message.create(
           'error',
-          err.message ? err.message : err.toString(),
+          err.error.message ? err.error.message : err.toString(),
         );
         this.isCheckinButtonLoading = false;
       },

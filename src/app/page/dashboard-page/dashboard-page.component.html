@@ -55,260 +55,250 @@
       </button>
     </div>
   </div>
-  <div>
-    <div
-      #dashboardBody
-      (window:resize)="calculateTableHeight(dashboardBody)"
-      class="flex-row"
-    >
-      <div style="flex: 1">
-        <nz-table
-          #todayAttendanceTable
-          [nzData]="attendanceResultList"
-          [nzFrontPagination]="false"
-          [nzScroll]="{ x: '100%', y: tableHeight }"
-          [nzLoading]="isCheckinButtonLoading"
-        >
-          <thead>
-            <tr>
-              <th>Name</th>
-              <th
-                [nzFilters]="departmentFilterList"
-                [nzFilterFn]="departmentFilterFunction"
-              >
-                Department
-              </th>
-              <th
-                [nzFilters]="attendanceFilterList"
-                [nzFilterFn]="attendanceFilterFunction"
-              >
-                Checkin/Checkout
-              </th>
-              <th>Notice</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr *ngFor="let data of todayAttendanceTable.data">
-              <td>{{ data.employee.name }}</td>
-              <td>{{ data.employee.department.name }}</td>
-              <td>
-                {{
-                  data.attendance
-                    ? (data.attendance.check_in_time | date: 'shortTime') +
-                      ' - ' +
-                      (data.attendance.check_out_time
-                        ? (data.attendance.check_out_time | date: 'shortTime')
-                        : '')
-                    : ''
-                }}
-              </td>
-              <td>
-                <i
-                  *ngIf="data.leave != null"
-                  nz-tooltip
-                  [nzTooltipTitle]="
-                    data.leave.leave_type.name +
-                    ' (' +
-                    (data.leave.type == 0
-                      ? 'Full Day'
-                      : data.leave.type == 1
-                      ? 'AM'
-                      : 'PM') +
-                    ')'
-                  "
-                  nz-icon
-                  [ngStyle]="{
-                    color: '#ce2783',
-                    'font-size': '12pt',
-                    margin: '0 4px'
-                  }"
-                  nzType="minus-circle"
-                ></i>
-                <i
-                  *ngIf="data.overtime != null"
-                  nz-tooltip
-                  [nzTooltipTitle]="
-                    (data.overtime.request_start_datetime | date: 'shortTime') +
+  <div
+    #dashboardBody
+    (window:resize)="calculateTableHeight(dashboardBody)"
+    class="flex-row"
+  >
+    <div style="flex: 1">
+      <nz-table
+        #todayAttendanceTable
+        [nzData]="attendanceResultList"
+        [nzFrontPagination]="false"
+        [nzScroll]="{ x: '100%', y: tableHeight }"
+        [nzLoading]="isCheckinButtonLoading"
+      >
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th
+              [nzFilters]="departmentFilterList"
+              [nzFilterFn]="departmentFilterFunction"
+            >
+              Department
+            </th>
+            <th
+              [nzFilters]="attendanceFilterList"
+              [nzFilterFn]="attendanceFilterFunction"
+            >
+              Checkin/Checkout
+            </th>
+            <th>Notice</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let data of todayAttendanceTable.data">
+            <td>{{ data.employee.name }}</td>
+            <td>{{ data.employee.department.name }}</td>
+            <td>
+              {{
+                data.attendance
+                  ? (data.attendance.check_in_time | date: 'shortTime') +
                     ' - ' +
-                    (data.overtime.request_end_datetime | date: 'shortTime')
-                  "
-                  nz-icon
-                  [ngStyle]="{
-                    color: '#6767ec',
-                    'font-size': '12pt',
-                    margin: '0 4px'
-                  }"
-                  nzType="clock-circle"
-                ></i>
-              </td>
-            </tr>
-          </tbody>
-        </nz-table>
+                    (data.attendance.check_out_time
+                      ? (data.attendance.check_out_time | date: 'shortTime')
+                      : '')
+                  : ''
+              }}
+            </td>
+            <td>
+              <i
+                *ngIf="data.leave != null"
+                nz-tooltip
+                [nzTooltipTitle]="
+                  data.leave.leave_type.name +
+                  ' (' +
+                  (data.leave.type == 0
+                    ? 'Full Day'
+                    : data.leave.type == 1
+                    ? 'AM'
+                    : 'PM') +
+                  ')'
+                "
+                nz-icon
+                [ngStyle]="{
+                  color: '#ce2783',
+                  'font-size': '12pt',
+                  margin: '0 4px'
+                }"
+                nzType="minus-circle"
+              ></i>
+              <i
+                *ngIf="data.overtime != null"
+                nz-tooltip
+                [nzTooltipTitle]="
+                  (data.overtime.request_start_datetime | date: 'shortTime') +
+                  ' - ' +
+                  (data.overtime.request_end_datetime | date: 'shortTime')
+                "
+                nz-icon
+                [ngStyle]="{
+                  color: '#6767ec',
+                  'font-size': '12pt',
+                  margin: '0 4px'
+                }"
+                nzType="clock-circle"
+              ></i>
+            </td>
+          </tr>
+        </tbody>
+      </nz-table>
+    </div>
+    <div
+      style="
+        display: flex;
+        flex-direction: column;
+        margin: 4px;
+        padding: 16px;
+        border: solid 1px lightgray;
+        align-self: flex-start;
+        width: 350px;
+      "
+    >
+      <div style="margin-bottom: 4px">
+        <span style="font-size: 10pt; color: gray">Date:</span>
+        {{ now | date: 'fullDate' }}
+      </div>
+      <div
+        *ngIf="attendanceResult && attendanceResult.holiday"
+        style="margin-bottom: 4px"
+      >
+        <span style="font-size: 10pt; color: gray">Holiday:</span>
+        {{ attendanceResult.holiday.name }}
+      </div>
+      <div
+        *ngIf="
+          attendanceResult &&
+          attendanceResult.leave &&
+          attendanceResult.leave.status == 1
+        "
+        style="margin-bottom: 4px"
+      >
+        <span style="font-size: 10pt; color: gray">Leave:</span>
+        {{
+          attendanceResult.leave.leave_type.name +
+            '(' +
+            (attendanceResult.leave.type == 0
+              ? 'Full Day'
+              : attendanceResult.leave.type == 1
+              ? 'AM'
+              : 'PM') +
+            ')'
+        }}
       </div>
       <div
         style="
-          display: flex;
-          flex-direction: column;
-          margin: 4px;
-          padding: 16px;
-          border: solid 1px lightgray;
-          align-self: flex-start;
+          margin: 8px 0 12px 0;
+          border-top: solid 0.5px lightgray;
+          align-self: stretch;
         "
+      ></div>
+      <div class="flex-row">
+        <div
+          style="
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            margin-right: 8px;
+          "
+        >
+          <div style="font-size: 10pt; color: gray; white-space: nowrap">
+            Check In Time
+          </div>
+          <div style="font-size: 20pt; white-space: nowrap">
+            {{
+              attendanceResult && attendanceResult.attendance
+                ? (attendanceResult.attendance.check_in_time
+                  | date: 'shortTime')
+                : '--:--'
+            }}
+          </div>
+        </div>
+        <div
+          style="
+            flex: 1;
+            display: flex;
+            border-left: solid 0.5px lightgray;
+            flex-direction: column;
+            padding-left: 8px;
+          "
+        >
+          <div style="font-size: 10pt; color: gray; white-space: nowrap">
+            Check Out Time
+          </div>
+          <div style="font-size: 20pt; white-space: nowrap">
+            {{
+              attendanceResult &&
+              attendanceResult.attendance &&
+              attendanceResult.attendance.check_out_time
+                ? (attendanceResult.attendance.check_out_time
+                  | date: 'shortTime')
+                : '--:--'
+            }}
+          </div>
+        </div>
+      </div>
+      <div
+        *ngIf="attendanceResult && attendanceResult.overtime"
+        style="
+          margin: 12px 0 12px 0;
+          border-top: solid 0.5px lightgray;
+          align-self: stretch;
+        "
+      ></div>
+      <span
+        *ngIf="attendanceResult && attendanceResult.overtime"
+        style="color: gray; margin-bottom: 4px; font-size: 10pt"
+        >Overtime:</span
       >
-        <div style="margin-bottom: 4px">
-          <span style="font-size: 10pt; color: gray">Date:</span>
-          {{ now | date: 'fullDate' }}
-        </div>
+      <div
+        *ngIf="attendanceResult && attendanceResult.overtime"
+        class="flex-row"
+      >
         <div
-          *ngIf="attendanceResult && attendanceResult.holiday"
-          style="margin-bottom: 4px"
-        >
-          <span style="font-size: 10pt; color: gray">Holiday:</span>
-          {{ attendanceResult.holiday.name }}
-        </div>
-        <div
-          *ngIf="
-            attendanceResult &&
-            attendanceResult.leave &&
-            attendanceResult.leave.status == 1
+          style="
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            margin-right: 8px;
           "
-          style="margin-bottom: 4px"
         >
-          <span style="font-size: 10pt; color: gray">Leave:</span>
-          {{
-            attendanceResult.leave.leave_type.name +
-              '(' +
-              (attendanceResult.leave.type == 0
-                ? 'Full Day'
-                : attendanceResult.leave.type == 1
-                ? 'AM'
-                : 'PM') +
-              ')'
-          }}
+          <div style="font-size: 10pt; color: gray">
+            {{
+              attendanceResult.overtime.request_start_datetime
+                | date: 'shortTime'
+            }}
+          </div>
+          <div style="font-size: 20pt; white-space: nowrap">
+            {{
+              attendanceResult.overtime.actual_start_datetime
+                ? (attendanceResult.overtime.actual_start_datetime
+                  | date: 'shortTime')
+                : '--:--'
+            }}
+          </div>
         </div>
         <div
           style="
-            margin: 8px 0 12px 0;
-            border-top: solid 0.5px lightgray;
-            align-self: stretch;
+            flex: 1;
+            display: flex;
+            border-left: solid 0.5px lightgray;
+            flex-direction: column;
+            padding-left: 8px;
           "
-        ></div>
-        <div class="flex-row">
-          <div
-            style="
-              flex: 1;
-              display: flex;
-              flex-direction: column;
-              margin-right: 8px;
-            "
-          >
-            <div style="font-size: 10pt; color: gray; white-space: nowrap">
-              Check In Time
-            </div>
-            <div
-              style="align-self: center; font-size: 20pt; white-space: nowrap"
-            >
-              {{
-                attendanceResult && attendanceResult.attendance
-                  ? (attendanceResult.attendance.check_in_time
-                    | date: 'shortTime')
-                  : '--:--'
-              }}
-            </div>
-          </div>
-          <div style="height: 100%; border-left: solid 0.5px lightgray"></div>
-          <div
-            style="
-              flex: 1;
-              display: flex;
-              flex-direction: column;
-              margin-left: 8px;
-            "
-          >
-            <div style="font-size: 10pt; color: gray; white-space: nowrap">
-              Check Out Time
-            </div>
-            <div
-              style="align-self: center; font-size: 20pt; white-space: nowrap"
-            >
-              {{
-                attendanceResult &&
-                attendanceResult.attendance &&
-                attendanceResult.attendance.check_out_time
-                  ? (attendanceResult.attendance.check_out_time
-                    | date: 'shortTime')
-                  : '--:--'
-              }}
-            </div>
-          </div>
-        </div>
-        <div
-          *ngIf="attendanceResult && attendanceResult.overtime"
-          style="
-            margin: 12px 0 12px 0;
-            border-top: solid 0.5px lightgray;
-            align-self: stretch;
-          "
-        ></div>
-        <span
-          *ngIf="attendanceResult && attendanceResult.overtime"
-          style="color: gray; margin-bottom: 4px; font-size: 10pt"
-          >Overtime:</span
         >
-        <div
-          *ngIf="attendanceResult && attendanceResult.overtime"
-          class="flex-row"
-        >
-          <div
-            style="
-              flex: 1;
-              display: flex;
-              flex-direction: column;
-              margin-right: 8px;
-            "
-          >
-            <div style="font-size: 10pt; color: gray">
-              {{
-                attendanceResult.overtime.request_start_datetime
-                  | date: 'shortTime'
-              }}
-            </div>
-            <div
-              style="align-self: center; font-size: 20pt; white-space: nowrap"
-            >
-              {{
-                attendanceResult.overtime.actual_start_datetime
-                  ? (attendanceResult.overtime.actual_start_datetime
-                    | date: 'shortTime')
-                  : '--:--'
-              }}
-            </div>
+          <div style="font-size: 10pt; color: gray">
+            {{
+              attendanceResult.overtime.request_end_datetime | date: 'shortTime'
+            }}
           </div>
-          <div style="height: 100%; border-left: solid 0.5px lightgray"></div>
-          <div
-            style="
-              flex: 1;
-              display: flex;
-              flex-direction: column;
-              margin-left: 8px;
-            "
-          >
-            <div style="font-size: 10pt; color: gray">
-              {{
-                attendanceResult.overtime.request_end_datetime
-                  | date: 'shortTime'
-              }}
-            </div>
-            <div
-              style="align-self: center; font-size: 20pt; white-space: nowrap"
-            >
-              {{
-                attendanceResult.overtime.actual_end_datetime
-                  ? (attendanceResult.overtime.actual_end_datetime
-                    | date: 'shortTime')
-                  : '--:--'
-              }}
-            </div>
+          <div style="align-self: center; font-size: 20pt; white-space: nowrap">
+            {{
+              attendanceResult.overtime.actual_end_datetime
+                ? (attendanceResult.overtime.actual_end_datetime
+                  | date: 'shortTime')
+                : '--:--'
+            }}
           </div>
         </div>
       </div>

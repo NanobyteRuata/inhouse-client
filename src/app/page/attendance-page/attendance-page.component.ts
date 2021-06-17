@@ -23,9 +23,9 @@ import { EncryptionUtil } from 'src/app/util/encryption-util';
 })
 export class AttendancePageComponent implements OnInit {
   @ViewChild('employeeSearchComponent1')
-  employeeSearchComponent1!: EmployeeSearchComponentComponent;
+  employeeSearchComponent1: EmployeeSearchComponentComponent;
   @ViewChild('monthYearSelectComponent')
-  monthYearSelectComponent!: MonthYearSelectComponentComponent;
+  monthYearSelectComponent: MonthYearSelectComponentComponent;
 
   // To use static DateUtil functions in HTML side,
   // we need to assign them into a local variable
@@ -93,18 +93,27 @@ export class AttendancePageComponent implements OnInit {
 
   ngOnInit(): void {
     this.initializeCurrentUser();
-    let waitComponentToLoadInterval = setInterval(() => {
-      if (this.employeeSearchComponent1 != null) {
-        // set current employee in employeeSearch component on left panel
-        this.employeeSearchComponent1.employees = [this.currentUserEmployee];
-        this.employeeSearchComponent1.selectedEmployee =
-          this.currentUserEmployee;
-
-        this.onSelectEmployee(this.currentUserEmployee);
-        this.calculateTableHeight();
-        clearInterval(waitComponentToLoadInterval);
-      }
-    }, 500);
+    if (this.currentUserEmployee.role < 2) {
+      let waitComponentToLoadInterval = setInterval(() => {
+        if (this.employeeSearchComponent1 != null) {
+          // set current employee in employeeSearch component on left panel
+          this.employeeSearchComponent1.employees = [this.currentUserEmployee];
+          this.employeeSearchComponent1.selectedEmployee =
+            this.currentUserEmployee;
+          this.onSelectEmployee(this.currentUserEmployee);
+          this.calculateTableHeight();
+          clearInterval(waitComponentToLoadInterval);
+        }
+      }, 500);
+    } else {
+      let waitComponentToLoadInterval = setInterval(() => {
+        if (this.monthYearSelectComponent != null) {
+          this.onSelectEmployee(this.currentUserEmployee);
+          this.calculateTableHeight();
+          clearInterval(waitComponentToLoadInterval);
+        }
+      }, 500);
+    }
   }
 
   // get current user data from localStorage

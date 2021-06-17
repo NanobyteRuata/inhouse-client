@@ -135,7 +135,7 @@ export class NewOvertimeDialogComponent implements OnInit {
       },
       (err) => {
         console.log(err);
-        this.message.error(err.message);
+        this.message.error(err.error.message);
         this.isNewOvertimeModalLoading = false;
       },
     );

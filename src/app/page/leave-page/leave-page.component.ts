@@ -69,6 +69,7 @@ export class LeavePageComponent implements OnInit {
   ];
   leaveTypeFilterList = [];
   reportToFilterList = [];
+  reportFromFilterList = [];
   statusFilterList = [
     { text: 'Pending', value: 0 },
     { text: 'Approved', value: 1 },
@@ -87,6 +88,8 @@ export class LeavePageComponent implements OnInit {
     statusIdList.some((statusId) => item.leave_type.id == statusId);
   reportToFilterFunction = (statusIdList: any[], item: any): boolean =>
     statusIdList.some((statusId) => item.supervisor.id == statusId);
+  reportFromFilterFunction = (statusIdList: any[], item: any): boolean =>
+    statusIdList.some((statusId) => item.supervisor.id == statusId);
   statusFilterFunction = (statusIdList: any[], item: any): boolean =>
     statusIdList.some((statusId) => item.status == statusId);
 
@@ -100,19 +103,21 @@ export class LeavePageComponent implements OnInit {
 
   ngOnInit(): void {
     this.initializeCurrentUser();
-    let waitComponentToLoadInterval = setInterval(() => {
-      if (this.employeeSearchComponent1 != null) {
-        // set current employee in employeeSearch component on left panel
-        this.employeeSearchComponent1.employees = [this.currentUserEmployee];
-        this.employeeSearchComponent1.selectedEmployee =
-          this.currentUserEmployee;
+    if (this.currentUserEmployee.role < 2) {
+      let waitComponentToLoadInterval = setInterval(() => {
+        if (this.employeeSearchComponent1 != null) {
+          // set current employee in employeeSearch component on left panel
+          this.employeeSearchComponent1.employees = [this.currentUserEmployee];
+          this.employeeSearchComponent1.selectedEmployee =
+            this.currentUserEmployee;
+          this.calculateTableHeight();
+          clearInterval(waitComponentToLoadInterval);
+        }
+      }, 500);
+    }
 
-        this.getAllLeaveTypes();
-        this.onSelectEmployee(this.currentUserEmployee);
-        this.calculateTableHeight();
-        clearInterval(waitComponentToLoadInterval);
-      }
-    }, 500);
+    this.getAllLeaveTypes();
+    this.onSelectEmployee(this.currentUserEmployee);
   }
 
   // get current user data from localStorage
@@ -192,14 +197,16 @@ export class LeavePageComponent implements OnInit {
                 });
               }
             }
-            this.reportToFilterList = tempReportToFilterList;
+            this.isRequested
+              ? (this.reportFromFilterList = tempReportToFilterList)
+              : (this.reportToFilterList = tempReportToFilterList);
           } else {
             this.message.error(response.message);
           }
           this.isLeaveTableLoading = false;
         },
         (err) => {
-          this.message.error(err.message);
+          this.message.error(err.error.message);
           this.isLeaveTableLoading = false;
         },
       );
@@ -241,7 +248,7 @@ export class LeavePageComponent implements OnInit {
         this.isLeaveAllowanceTableLoading = false;
       },
       (err) => {
-        this.message.error(err.message);
+        this.message.error(err.error.message);
         this.isLeaveAllowanceTableLoading = false;
       },
     );
@@ -305,7 +312,7 @@ export class LeavePageComponent implements OnInit {
         this.leaveDeleteLoadingId = null;
       },
       (err) => {
-        this.message.error(err.message);
+        this.message.error(err.error.message);
         this.isLeaveDeleteLoading = false;
         this.leaveDeleteLoadingId = null;
       },
@@ -344,7 +351,7 @@ export class LeavePageComponent implements OnInit {
         this.isLeaveAllowanceSaveLoading = false;
       },
       (err) => {
-        this.message.error(err.message);
+        this.message.error(err.error.message);
         this.isLeaveAllowanceSaveLoading = false;
       },
     );
@@ -366,7 +373,7 @@ export class LeavePageComponent implements OnInit {
           this.isLeaveAllowanceDeleteLoading = false;
         },
         (err) => {
-          this.message.error(err.message);
+          this.message.error(err.error.message);
           this.isLeaveAllowanceDeleteLoading = false;
         },
       );

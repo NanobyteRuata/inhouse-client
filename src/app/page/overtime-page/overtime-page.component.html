@@ -19,6 +19,7 @@
   </div>
   <div class="overtime-body">
     <app-employee-search-component
+      *ngIf="2 > currentUserEmployee.role"
       #employeeSearchComponent
       (onSelectEmployee)="onSelectEmployee($event)"
     ></app-employee-search-component>
@@ -61,8 +62,8 @@
             <th
               *ngIf="isRequested"
               colspan="3"
-              [nzFilters]="reportToFilterList"
-              [nzFilterFn]="reportToFilterFunction"
+              [nzFilters]="reportFromFilterList"
+              [nzFilterFn]="reportFromFilterFunction"
             >
               Report from
             </th>

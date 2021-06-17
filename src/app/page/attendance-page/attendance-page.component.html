@@ -6,6 +6,7 @@
   </div>
   <div class="attendance-body">
     <app-employee-search-component
+      *ngIf="2 > currentUserEmployee.role"
       #employeeSearchComponent1
       (onSelectEmployee)="onSelectEmployee($event)"
       [showEmployeeDetails]="true"
@@ -110,7 +111,8 @@
                     hoverDate == data.date &&
                     isHolidayCreateDeleteVisible &&
                     data.holiday == null &&
-                    !(editHoliday != null && editHoliday.date == data.date)
+                    !(editHoliday != null && editHoliday.date == data.date) &&
+                    2 > currentUserEmployee.role
                   "
                   nz-tooltip
                   [nzTooltipTitle]="'Add new holiday'"

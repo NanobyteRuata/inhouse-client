@@ -16,6 +16,7 @@
   </div>
   <div class="leave-body">
     <app-employee-search-component
+      *ngIf="2 > currentUserEmployee.role"
       #employeeSearchComponent
       (onSelectEmployee)="onSelectEmployee($event)"
     ></app-employee-search-component>
@@ -52,8 +53,8 @@
               <tr>
                 <th
                   *ngIf="isRequested"
-                  [nzFilters]="reportToFilterList"
-                  [nzFilterFn]="reportToFilterFunction"
+                  [nzFilters]="reportFromFilterList"
+                  [nzFilterFn]="reportFromFilterFunction"
                 >
                   Reported from
                 </th>
@@ -243,7 +244,10 @@
                   <th>Total</th>
                   <th>Used</th>
                   <th>Remaining</th>
-                  <th style="text-align: right" *ngIf="isCurrentYear">
+                  <th
+                    style="text-align: right"
+                    *ngIf="isCurrentYear && 2 > currentUserEmployee.role"
+                  >
                     Action
                   </th>
                 </tr>
@@ -280,7 +284,10 @@
                     ></nz-input-number>
                   </td>
                   <td>{{ data.leave_type.leave_days - data.used_days }}</td>
-                  <td style="text-align: right" *ngIf="isCurrentYear">
+                  <td
+                    style="text-align: right"
+                    *ngIf="isCurrentYear && 2 > currentUserEmployee.role"
+                  >
                     <a
                       *ngIf="
                         leaveAllowanceEditData &&
@@ -360,7 +367,7 @@
                     ></a>
                   </td>
                 </tr>
-                <tr *ngIf="isCurrentYear">
+                <tr *ngIf="isCurrentYear && 2 > currentUserEmployee.role">
                   <td>
                     <app-custom-select-component
                       *ngIf="
