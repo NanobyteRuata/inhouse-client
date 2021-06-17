@@ -232,7 +232,6 @@ export class AttendancePageComponent implements OnInit {
           this.isUpdateLoading = false;
         },
         (err) => {
-          console.log(err);
           this.message.create('error', err.error.message);
           this.isUpdateLoading = false;
         },
