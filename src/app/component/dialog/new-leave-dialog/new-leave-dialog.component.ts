@@ -161,6 +161,7 @@ export class NewLeaveDialogComponent implements OnInit {
     this.isNewLeaveModalLoading = true;
 
     let requestBody: any = {};
+    requestBody['employee_id'] = this.newLeaveEmployeeValue.id;
     requestBody['supervisor_id'] = this.newLeaveReportToValue.id;
     requestBody['leave_type_id'] = this.newLeaveLeaveTypeValue.id;
     requestBody['from_date'] = this.newLeaveFromDateValue;
