@@ -264,9 +264,13 @@ export class LeavePageComponent implements OnInit {
     );
   }
 
-  onNewLeaveCreated(leave: Leave) {
-    if (this.selectedEmployee.id == leave.emp.id) {
-      this.leaveList.push(leave);
+  onNewLeaveCreated(leave: any) {
+    if(Array.isArray(leave)) {
+      if (this.selectedEmployee.id == leave[0].employee.id) {
+        this.leaveList = [...this.leaveList, ...leave]
+      }
+    }else if (this.selectedEmployee.id == leave.employee.id) {
+      this.leaveList = [...this.leaveList, leave]
     }
   }
 
@@ -305,6 +309,7 @@ export class LeavePageComponent implements OnInit {
         if (response.success) {
           this.leaveList = this.leaveList.filter((l) => l.id != leave.id);
           this.message.success(response.message);
+          this.getLeaveAllowance(this.selectedEmployee.id,new Date().getFullYear())
         } else {
           this.message.error(response.message);
         }
@@ -338,10 +343,14 @@ export class LeavePageComponent implements OnInit {
     subscription.subscribe(
       (response: Response) => {
         if (response.success) {
-          this.leaveAllowanceList = [
-            ...this.leaveAllowanceList,
-            response.result,
-          ];
+          if(!this.leaveAllowanceList.find(la => la.id == response.result.id)) {
+            this.leaveAllowanceList = [
+              ...this.leaveAllowanceList,
+              response.result,
+            ];
+          } else {
+            this.leaveAllowanceList = this.leaveAllowanceList.map(la => la.id == response.result.id ? response.result : la)
+          }
           this.message.success(response.message);
           this.leaveAllowanceEditData = null;
           this.checkLeaveAllowanceUpdate(this.leaveAllowanceList);

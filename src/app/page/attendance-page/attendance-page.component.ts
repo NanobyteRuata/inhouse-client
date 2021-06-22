@@ -8,6 +8,7 @@ import { Attendance } from 'src/app/model/attendance-model';
 import { AttendanceResult } from 'src/app/model/attendance-result-model';
 import { Employee } from 'src/app/model/employee-model';
 import { Holiday } from 'src/app/model/holiday-model';
+import { Leave } from 'src/app/model/leave-model';
 import { Overtime } from 'src/app/model/overtime-model';
 import { Response } from 'src/app/model/response-model';
 import { AttendanceApiService } from 'src/app/service/attendance-api.service';
@@ -271,11 +272,11 @@ export class AttendancePageComponent implements OnInit {
   calculateWorkingHour(
     checkinTime: number,
     checkoutTime: number,
-    leave?: any,
+    leave?: Leave,
   ): string {
     return moment
       .utc(moment(checkoutTime).diff(moment(checkinTime)))
-      .format('HH:mm');
+      .subtract((leave && leave.type != 0) ? 0 : 1, 'hour').format('HH:mm');
   }
 
   getLeaveTooltopTitle(leave: any): string {

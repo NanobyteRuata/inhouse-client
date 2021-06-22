@@ -236,7 +236,8 @@
                   data.date != editDate &&
                   data.attendance == null &&
                   !checkWeekend(data.date) &&
-                  data.holiday == null
+                  data.holiday == null &&
+                  !(data.leave != null && data.leave.type == 0)
                 "
                 nz-button
                 nzType="link"

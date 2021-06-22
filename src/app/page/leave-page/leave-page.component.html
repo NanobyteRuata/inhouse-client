@@ -331,6 +331,10 @@
                       ></i
                     ></a>
                     <a
+                    *ngIf="
+                      !(leaveAllowanceEditData &&
+                      leaveAllowanceEditData.id == data.id)
+                    "
                       nz-button
                       nzType="link"
                       (click)="onLeaveAllowanceEditClick(data)"
@@ -347,6 +351,10 @@
                     ></a>
 
                     <a
+                    *ngIf="
+                      !(leaveAllowanceEditData &&
+                      leaveAllowanceEditData.id == data.id)
+                    "
                       nz-button
                       nzType="link"
                       nz-popconfirm
