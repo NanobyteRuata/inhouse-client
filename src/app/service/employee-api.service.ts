@@ -41,7 +41,7 @@ export class EmployeeApiService {
   }
 
   deleteEmployee(id: number) {
-    return this.baseApiService.delete(`employee/${id}`);
+    return this.baseApiService.post(`employee/${id}`,null);
   }
 
   changePassword(old_password: string, new_password: string) {
