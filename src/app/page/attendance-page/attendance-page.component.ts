@@ -274,9 +274,10 @@ export class AttendancePageComponent implements OnInit {
     checkoutTime: number,
     leave?: Leave,
   ): string {
-    return moment
-      .utc(moment(checkoutTime).diff(moment(checkinTime)))
-      .subtract((leave && leave.type != 0) ? 0 : 1, 'hour').format('HH:mm');
+    const inOutDifference = moment.utc(moment(checkoutTime).diff(moment(checkinTime)));
+    return inOutDifference.subtract(
+      ((leave && leave.type != 0) || (inOutDifference.hours() < 5)) ? 0 : 1, 'hour'
+      ).format('HH:mm');
   }
 
   getLeaveTooltopTitle(leave: any): string {

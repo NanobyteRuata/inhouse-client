@@ -32,6 +32,7 @@ export class LoginPageComponent implements OnInit {
     this.authApiService.login(this.username, this.password).subscribe(
       (response: Response) => {
         if (response.success) {
+          console.log(response);
           let encryptedUserDataJsonString = EncryptionUtil.encryptData(
             JSON.stringify(response.result.data as Employee),
           );
